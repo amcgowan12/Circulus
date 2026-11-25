@@ -395,12 +395,32 @@ body.navopen #nav{transform:none}
 @media (max-width:1399px){body.labmode #nav{top:0;z-index:40}}
 body.navopen main{filter:brightness(.92)}
 
+/* header link and the Math & model page */
+.hlink{color:#fff;text-decoration:none;font-weight:600;font-size:14.5px;border:1px solid rgba(255,255,255,.35);border-radius:8px;padding:0 12px;min-height:40px;display:inline-flex;align-items:center;margin-left:4px;white-space:nowrap}
+.hlink:hover{background:rgba(255,255,255,.12)}
+.hlink:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.mathpage{max-width:900px}
+.mathpage section{margin:30px 0;scroll-margin-top:70px}
+.mathpage section:focus{outline:none}
+.mathpage h2{font-size:24px;margin-bottom:8px}
+.mathpage p,.mathpage li{line-height:1.6;font-size:16px}
+.mathpage ul{padding-left:20px}
+.mathpage math[display="block"]{display:block;margin:14px 0;padding:12px 14px;background:var(--soft);border:1px solid var(--line);border-radius:10px;overflow-x:auto;font-size:18px}
+.mtoc{display:flex;flex-wrap:wrap;gap:6px 14px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);margin:12px 0 6px;font-size:14px}
+.mtoc b{width:100%;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.mfig{margin:14px 0}.mfig svg{width:100%;max-width:560px;height:auto;font:11px "Red Hat Text",system-ui,sans-serif;color:var(--muted)}
+.mfig figcaption{font-size:13.5px;color:var(--muted)}
+.mtab{font-size:14px;width:100%}.mtab th,.mtab td{text-align:left;padding:5px 8px;vertical-align:top}
+@media (max-width:760px){.hlink{font-size:13px;padding:0 9px}.brand small{display:none}}
+@media (max-width:520px){.hlink{order:3}}
+
 </style>
 </head>
 <body>
 <header class="top">
   <button id="menu" class="tbtn-menu" aria-label="Open lesson list" aria-expanded="false" aria-controls="nav" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;min-height:40px;padding:0 12px">Lessons</button>
   <a class="brand" href="#"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 6c-7 0-12 6-12 14s5 14 12 14" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/><path d="M20 34c7 0 12-6 12-14S27 6 20 6" fill="none" stroke="#ffb3be" stroke-width="3.2" stroke-linecap="round"/><path d="M8 20h6l3-6 4 12 3-6h8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg>Circulus<small>cardiovascular physiology lab</small></a>
+  <a class="hlink" id="mathlink" href="#math">Math &amp; model</a>
   <div class="tb">
     <div class="mode" role="group" aria-label="Detail level" title="Basic shows the core numbers; Advanced reveals every metric and setting"><button type="button" data-mode="basic" aria-pressed="true" class="on">Basic</button><button type="button" data-mode="adv" aria-pressed="false">Advanced</button></div>
     <button id="play" aria-pressed="false" title="Pause or resume (Space)">Pause</button>
@@ -2723,6 +2743,7 @@ function render(id) {
   const main = $('#main');
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + id));
   const sel = $('#navsel'); if (sel) sel.value = id || '';
+  if (!sec && id === 'math') { sim = null; main.innerHTML = MATH(); window.scrollTo(0, 0); return; }
   if (!sec) { sim = null; main.innerHTML = HOME(); window.scrollTo(0, 0); bindHome(); return; }
   sweepJob++;
   S = { pins: [], curves: [], ramp: null, note: '', dirty: true, score: S.score || [0, 0] };
@@ -3257,6 +3278,182 @@ function cmOverlayUpdate(b) {
   const v1 = document.getElementById('cmv1'); if (v1) { v1.setAttribute('stroke-width', W.toFixed(1)); document.getElementById('cmv2').setAttribute('stroke-width', (W * 0.7).toFixed(1)); document.getElementById('cmv3').setAttribute('stroke-width', Math.max(3, W * 0.16).toFixed(1)); }
 }
 
+// ================= "Math & model" page =================
+// Equations here mirror model.js and gas.js; the parameter table and the activation plot are generated from the live code.
+const MM = {
+  // small MathML helpers
+  m: (x, disp) => `<math${disp ? ' display="block"' : ''}>${x}</math>`,
+  i: v => `<mi>${v}</mi>`, n: v => `<mn>${v}</mn>`, o: v => `<mo>${v}</mo>`,
+  sub: (a, b) => `<msub>${a}${b}</msub>`, sup: (a, b) => `<msup>${a}${b}</msup>`,
+  fr: (a, b) => `<mfrac><mrow>${a}</mrow><mrow>${b}</mrow></mfrac>`, sq: a => `<msqrt><mrow>${a}</mrow></msqrt>`,
+  r: (...a) => `<mrow>${a.join('')}</mrow>`, t: s => `<mtext>${s.replace(/ /g, '\u00a0')}</mtext>`
+};
+function mathActPlot() {
+  // e(t) from the model's own activation function, for a normal and a slow-relaxing ventricle at 72 bpm
+  const RR = 60 / 72, Tv = 0.11 + 0.2 * RR, W = 520, H = 170, L = 40, B = 26, x = t => L + t / RR * (W - L - 10), y = v => H - B - v * (H - B - 12);
+  const curve = tau => { let d = ''; for (let i = 0; i <= 200; i++) { const t = i / 200 * RR; d += (i ? 'L' : 'M') + x(t).toFixed(1) + ',' + y(act(t, Tv, tau)).toFixed(1); } return d; };
+  const ticks = [0, 0.2, 0.4, 0.6, 0.8].map(t => `<line x1="${x(t)}" y1="${H - B}" x2="${x(t)}" y2="${H - B + 4}" stroke="currentColor"/><text x="${x(t)}" y="${H - 8}" text-anchor="middle">${t.toFixed(1)}</text>`).join('');
+  return `<figure class="mfig"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Activation function e(t) over one beat at 72 bpm for tau 35 ms and tau 70 ms">
+    <line x1="${L}" y1="${H - B}" x2="${W - 10}" y2="${H - B}" stroke="currentColor"/><line x1="${L}" y1="12" x2="${L}" y2="${H - B}" stroke="currentColor"/>${ticks}
+    <text x="${L - 6}" y="${y(1) + 4}" text-anchor="end">1</text><text x="${L - 6}" y="${y(0) + 4}" text-anchor="end">0</text>
+    <line x1="${x(Tv)}" y1="12" x2="${x(Tv)}" y2="${H - B}" stroke="currentColor" stroke-dasharray="3 3" opacity=".5"/><text x="${x(Tv) + 4}" y="22">T<tspan dy="3" font-size="9">max</tspan></text>
+    <path d="${curve(0.035)}" fill="none" stroke="#b3132f" stroke-width="2.2"/><path d="${curve(0.07)}" fill="none" stroke="#2f6fde" stroke-width="2.2" stroke-dasharray="6 4"/>
+    <text x="${W - 14}" y="40" text-anchor="end" fill="#b3132f">τ = 35 ms (normal)</text><text x="${W - 14}" y="58" text-anchor="end" fill="#2f6fde">τ = 70 ms (impaired relaxation)</text>
+    <text x="${(W + L) / 2}" y="${H}" text-anchor="middle" font-size="10">time in the beat (s)</text></svg>
+    <figcaption>The activation function e(t) the model uses, plotted from the same code at 72 bpm. A slower τ leaves the ventricle partly “on” well into diastole.</figcaption></figure>`;
+}
+function mathParamTable() {
+  const keys = ['HR', 'PRi', 'LV_Ees', 'LV_V0', 'LV_k', 'LV_tau', 'RV_Ees', 'RV_V0', 'RV_k', 'RV_tau', 'LA_Ees', 'LA_k', 'RA_Ees', 'Ras', 'Cas', 'Rcs', 'V0sv', 'Csv', 'Rap', 'Cap', 'av_f', 'mv_f', 'tv_f', 'pv_f', 'periV0', 'periK', 'VO2', 'Hb'];
+  const extra = { LV_A: ['LV EDPVR scale (A)', 'mmHg', 1, 2], Rvs: ['Venous return resistance', 'mmHg·s/mL', 1, 3], Rcp: ['Pulmonary characteristic impedance', 'mmHg·s/mL', 1, 3], Cpv: ['Pulmonary venous compliance', 'mL/mmHg', 1, 1], V0sa: ['Systemic arterial unstressed volume', 'mL', 1, 0], V0pa: ['Pulmonary arterial unstressed volume', 'mL', 1, 0], V0pv: ['Pulmonary venous unstressed volume', 'mL', 1, 0], Rvp: ['Pulmonary venous resistance', 'mmHg·s/mL', 1, 3] };
+  const row = (l, v, u) => `<tr><th scope="row">${esc(l)}</th><td>${esc(v)}</td><td>${esc(u)}</td></tr>`;
+  const rows = keys.filter(k => CTL[k]).map(k => { const c = CTL[k]; return row(c[0], c[8] ? c[8][DEFAULTS[k]] : fmt(DEFAULTS[k] * c[5], c[6]), c[1]); })
+    .concat(Object.entries(extra).map(([k, [l, u, s, d]]) => row(l, fmt(DEFAULTS[k] * s, d), u)));
+  return `<div class="scroll"><table class="stt mtab"><thead><tr><th scope="col">Parameter</th><th scope="col">Normal value</th><th scope="col">Unit</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>
+  <p class="help">Total blood volume ${VBASE} mL. Resistances in the code are in mmHg·s/mL: multiply by 1333 for dyn·s/cm⁵ or by 16.67 for Wood units.</p>`;
+}
+function MATH() {
+  const { m, i, n, o, sub, sup, fr, sq, r, t } = MM;
+  const V = i('V'), P = i('P'), Q = i('Q');
+  const toc = [['big', 'The big picture'], ['heart', 'Heart chambers'], ['valves', 'Valves'], ['vessels', 'Blood vessels'], ['peri', 'Pericardium and breathing'], ['rhythm', 'Rhythm and beat-to-beat changes'], ['devices', 'Shunts and devices'], ['energy', 'Myocardial energetics'], ['coronary', 'Coronary supply and demand'], ['oxygen', 'Oxygen delivery'], ['reflex', 'Baroreflex'], ['drugs', 'Drugs'], ['derived', 'What the readouts mean'], ['gas', 'Gas-exchange lessons'], ['fit', 'Building a patient from numbers'], ['viz', 'How the pictures are drawn'], ['limits', 'Limitations'], ['params', 'Parameter values'], ['reading', 'Further reading']];
+  return `<article class="lesson mathpage">
+  <header class="lhead"><p class="crumb">About</p><h1>The math behind Circulus</h1><p class="lede">Every number and waveform in Circulus comes from one set of equations, solved thousands of times per simulated second. This page sets out those equations, the choices behind them, and where they fall short.</p></header>
+  <nav class="mtoc" aria-label="On this page"><b>On this page</b>${toc.map(([id, l]) => `<a href="#math" data-jump="${id}">${esc(l)}</a>`).join('')}</nav>
+
+  <section id="m-big"><h2>The big picture</h2>
+  <p>Circulus is a <b>lumped-parameter</b> (zero-dimensional) model: instead of tracking blood through every vessel, it divides the circulation into eight compartments and tracks how much blood is in each. The compartments are the four heart chambers (LA, LV, RA, RV), systemic arteries, systemic veins, pulmonary arteries and pulmonary veins. Volumes are the <b>state variables</b>; pressures and flows are computed from them at every instant.</p>
+  <p>The model borrows the language of an electrical circuit: pressure is voltage, flow is current, vessel resistance is a resistor and vessel stretchiness (compliance) is a capacitor. Blood is conserved, so each compartment's volume changes by what flows in minus what flows out:</p>
+  ${m(r(fr(r(i('d'), sub(V, i('k'))), r(i('d'), i('t'))), o('='), sub(Q, t('in')), o('−'), sub(Q, t('out'))), 1)}
+  <p>The eight equations are stepped forward with the explicit (forward) Euler method every <b>Δt = 0.25 ms</b>, which is 4,000 steps per simulated second. That step is small compared with the fastest events (valve opening, the upstroke of contraction), which keeps the method stable. Units throughout are mmHg, mL and seconds, so flows are mL/s and resistances mmHg·s/mL.</p></section>
+
+  <section id="m-heart"><h2>Heart chambers: time-varying elastance</h2>
+  <p>Each ventricle is a chamber whose stiffness rises and falls with every beat (Suga and Sagawa's <b>time-varying elastance</b>). Pressure blends an active part, the end-systolic pressure–volume relation (ESPVR), with a passive part, the exponential end-diastolic pressure–volume relation (EDPVR), weighted by an activation function <i>e</i>(<i>t</i>) that runs from 0 (relaxed) to 1 (fully contracted):</p>
+  ${m(r(P, o('='), i('e'), o('('), i('t'), o(')'), o('·'), sub(i('E'), t('es')), o('('), V, o('−'), sub(V, n(0)), o(')'), o('+'), o('['), n(1), o('−'), i('e'), o('('), i('t'), o(')'), o(']'), o('·'), i('A'), o('('), sup(i('e'), r(i('k'), o('('), V, o('−'), sub(V, n(0)), o(')'))), o('−'), n(1), o(')'), o('+'), sub(P, t('peri')), o('+'), sub(P, t('thorax'))), 1)}
+  <ul><li><b>E<sub>es</sub></b> is the slope of the ESPVR (contractility) and <b>V<sub>0</sub></b> its volume intercept (chamber size; it shifts right with remodelling).</li>
+  <li><b>A</b> and <b>k</b> set the EDPVR: <i>k</i> is diastolic stiffness, so a higher <i>k</i> means a steeper, stiffer filling curve.</li>
+  <li>A small term, −25·e<sup>−V/2.5</sup>, stops a chamber emptying completely, the way a collapsing chamber resists further emptying.</li></ul>
+  <p>The activation function rises as a half cosine over <i>T</i><sub>max</sub> = 0.11 + 0.2·RR seconds, then decays smoothly with the relaxation time constant τ (smoothing constant <i>c</i> = 0.8τ):</p>
+  ${m(r(i('e'), o('('), i('t'), o(')'), o('='), fr(n(1), n(2)), o('['), n(1), o('−'), i('cos'), o('('), fr(r(i('π'), i('t')), sub(i('T'), t('max'))), o(')'), o(']'), t('  for t < Tmax,     '), i('e'), o('='), sup(i('e'), r(o('−'), fr(r(sq(r(sup(i('s'), n(2)), o('+'), sup(i('c'), n(2)))), o('−'), i('c')), i('τ')))), t('  after, with s = t − Tmax')), 1)}
+  ${mathActPlot()}
+  <p>The <b>atria</b> use the same pieces, but contraction can only add to their passive pressure: <i>P</i> = <i>P</i><sub>passive</sub> + <i>e</i>(<i>t</i>)·max(0, <i>E</i>(<i>V</i> − <i>V</i><sub>0</sub>) − <i>P</i><sub>passive</sub>). Atrial activation is shorter (<i>T</i><sub>max</sub> = 0.08 + 0.05·RR, τ = 30 ms) and starts one PR interval before the ventricles; the right atrium fires 10 ms before the left.</p>
+  <p><b>Ischaemia</b> (from the coronary model below) lowers LV E<sub>es</sub> by up to 50%, raises the EDPVR scale <i>A</i> by up to 150% and doubles τ at its worst.</p></section>
+
+  <section id="m-valves"><h2>Valves: the Bernoulli orifice</h2>
+  <p>Each valve is a one-way orifice. Across a narrowing, the simplified Bernoulli equation gives the familiar Doppler rule ΔP = 4<i>v</i>² (mmHg, with <i>v</i> in m/s). Writing velocity as flow ÷ area, with <i>Q</i> in mL/s and <i>A</i> in cm², <i>v</i> = <i>Q</i>/(100<i>A</i>) m/s, so</p>
+  ${m(r(i('ΔP'), o('='), n(4), sup(r(o('('), fr(Q, r(n(100), i('A'))), o(')')), n(2)), o('='), sup(r(o('('), fr(Q, r(n(50), i('A'))), o(')')), n(2)), o('='), i('b'), sup(Q, n(2)), t(',   '), i('b'), o('='), fr(n(1), sup(r(o('('), n(50), i('A'), o(')')), n(2)))), 1)}
+  <p>Adding a small linear resistance <i>R</i><sub>l</sub> for viscous losses gives ΔP = <i>R</i><sub>l</sub><i>Q</i> + <i>bQ</i>², which the model solves for flow in a numerically stable form:</p>
+  ${m(r(Q, o('='), fr(r(n(2), i('ΔP')), r(sub(i('R'), i('l')), o('+'), sq(r(sup(sub(i('R'), i('l')), n(2)), o('+'), n(4), i('b'), i('ΔP')))))), 1)}
+  <p>Forward flow uses the valve's opening area; backward flow uses its <b>regurgitant orifice area</b> (zero for a competent valve). Stenosis and regurgitation are therefore set by area, in cm², exactly as an echo report describes them. The aortic valve's <i>R</i><sub>l</sub> is the aortic characteristic impedance, so aortic root pressure is the arterial compartment pressure plus <i>R</i><sub>cs</sub>·<i>Q</i><sub>aortic</sub>.</p></section>
+
+  <section id="m-vessels"><h2>Blood vessels: Windkessels and stressed volume</h2>
+  <p>Each vascular compartment is a capacitor. Only blood above its <b>unstressed volume</b> <i>V</i><sub>0</sub> stretches the wall and creates pressure:</p>
+  ${m(r(P, o('='), fr(r(V, o('−'), sub(V, n(0))), i('C')), t(',     '), Q, o('='), fr(r(sub(P, t('upstream')), o('−'), sub(P, t('downstream'))), i('R'))), 1)}
+  <p>The systemic side is a three-element Windkessel: aortic characteristic impedance <i>R</i><sub>cs</sub>, arterial compliance <i>C</i><sub>as</sub> and arteriolar resistance <i>R</i><sub>as</sub> (which is what SVR measures), then a large venous capacitance <i>C</i><sub>sv</sub> with unstressed volume <i>V</i><sub>0,sv</sub> and a small venous-return resistance back to the right atrium. The pulmonary side mirrors it (<i>R</i><sub>cp</sub>, <i>C</i><sub>ap</sub>, PVR as <i>R</i><sub>ap</sub>, <i>C</i><sub>pv</sub>). Total volume is fixed unless you change it.</p>
+  <p>Guyton's venous return emerges rather than being imposed: the stressed volume in the veins sets a mean systemic filling pressure, and flow back to the heart is driven by the gap between that and right atrial pressure. Venodilators (nitroglycerin, milrinone) work by raising <i>V</i><sub>0,sv</sub>, moving blood into the unstressed pool; pressors do the reverse.</p></section>
+
+  <section id="m-peri"><h2>Pericardium and breathing</h2>
+  <p>The pericardium is an exponential sac around all four chambers. Its pressure depends on total heart volume plus any effusion, and it is added to every chamber, so filling one side squeezes the others:</p>
+  ${m(r(sub(P, t('peri')), o('='), sub(i('A'), i('p')), o('('), sup(i('e'), r(sub(i('k'), i('p')), o('('), sub(V, t('heart')), o('+'), sub(V, t('effusion')), o('−'), sub(V, r(n(0), o(','), i('p'))), o(')'))), o('−'), n(1), o(')')), 1)}
+  <p>An effusion builds with a 1.5-second time constant, so tamponade develops over a few beats rather than instantly. Intrathoracic pressure is added to the chambers and pulmonary vessels. Spontaneous breathing holds it at −1 mmHg and lowers it to −5.5 mmHg during inspiration (the first 40% of each breath); positive-pressure ventilation raises it to 0.35·PEEP at baseline plus 0.35·(plateau − PEEP) at peak inspiration. That swing is what produces pulse-pressure variation and pulsus paradoxus.</p></section>
+
+  <section id="m-rhythm"><h2>Rhythm and beat-to-beat changes</h2>
+  <p>In sinus rhythm the atria fire every RR interval and the ventricles follow one PR interval later. In atrial fibrillation there is no atrial kick, and each RR interval is drawn at random between 0.55 and 1.45 times the average. Contractility then varies beat to beat through <b>mechanical restitution</b>: a ventricle needs time to recover, described by</p>
+  ${m(r(i('r'), o('('), i('RR'), o(')'), o('='), n(1), o('−'), n('0.6'), sup(i('e'), r(o('−'), fr(r(i('RR'), o('−'), n('0.2')), n('0.2')))), t(',     beat factor = '), i('min'), o('('), fr(r(i('r'), o('('), i('RR'), o(')')), r(i('r'), o('('), sub(i('RR'), t('normal')), o(')'))), o(','), n('1.12'), o(')'), o('·'), o('('), n(1), o('+'), i('p'), o(')')), 1)}
+  <p>A short interval (a premature beat) gives a weak beat; the shortfall carries forward as <b>potentiation</b> <i>p</i> (<i>p</i> ← 0.45<i>p</i> + 0.8·max(0, 1 − ratio)), so the next beat is stronger, the classic post-extrasystolic potentiation.</p></section>
+
+  <section id="m-devices"><h2>Shunts and devices</h2>
+  <p>Atrial and ventricular septal defects are orifices between the two sides that use the same Bernoulli equation, so flow goes whichever way pressure pushes it. Impella flow falls as the aorta-to-LV pressure difference rises: <i>Q</i> = 0.6 × level × (1 − Δ<i>P</i>/160) L/min, and it tapers to zero as the LV empties (suction). V-A ECMO returns its set flow from the right atrium into the arteries, limited when RA pressure or volume runs low. The right-sided pump (Impella RP) moves blood from RA to pulmonary artery the same way.</p></section>
+
+  <section id="m-energy"><h2>Myocardial energetics</h2>
+  <p>Oxygen use follows Suga's <b>pressure–volume area</b> (PVA). Stroke work (SW) is the area inside the loop, computed with the shoelace formula. Potential energy (PE) is the energy left stored at end-systole, approximated as the triangle under the ESPVR, ½·<i>P</i><sub>es</sub>·(<i>V</i><sub>es</sub> − <i>V</i><sub>0</sub>), where end-systole is the loop point with the highest <i>P</i>/(<i>V</i> − <i>V</i><sub>0</sub>):</p>
+  ${m(r(i('PVA'), o('='), i('SW'), o('+'), fr(n(1), n(2)), sub(i('P'), t('es')), o('('), sub(V, t('es')), o('−'), sub(V, n(0)), o(')'), t(',     MVO₂ per beat = '), n('1.66'), o('×'), sup(n(10), r(o('−'), n(5))), o('·'), i('PVA'), o('+'), n('0.03'), o('·'), sub(i('E'), t('es'))), 1)}
+  <p>MVO₂ per minute is that × heart rate + 2 mL/min basal. Mechanical efficiency is stroke work per minute (1 mmHg·mL = 1.333 × 10⁻⁴ J) divided by the energy in the oxygen used (20.1 J per mL O₂).</p></section>
+
+  <section id="m-coronary"><h2>Coronary supply and demand</h2>
+  <p>Coronary flow happens mainly in diastole. Maximum flow scales with the diastolic perfusion gradient and the fraction of the beat spent in diastole, and a stenosis adds resistance as the fourth power of the remaining lumen (Poiseuille):</p>
+  ${m(r(sub(i('CBF'), t('max')), o('='), fr(r(o('('), sub(P, t('diastolic')), o('−'), i('LVEDP'), o(')'), o('·'), sub(i('f'), t('diastole'))), r(n('0.05'), o('+'), sub(i('R'), t('stenosis')))), t(',     '), sub(i('R'), t('stenosis')), o('='), n('0.0002'), o('['), sup(r(o('('), n(1), o('−'), i('s'), o(')')), r(o('−'), n(4))), o('−'), n(1), o(']')), 1)}
+  <p>Demand is MVO₂ ÷ (0.7 × arterial O₂ content), assuming 70% extraction. When supply falls short, an ischaemia variable moves toward (1 − supply/demand)/0.45 and feeds back on the LV (weaker, stiffer, slower to relax), which can spiral.</p></section>
+
+  <section id="m-oxygen"><h2>Oxygen delivery</h2>
+  ${m(r(sub(i('C'), r(i('a'), sub(i('O'), n(2)))), o('='), n('1.34'), o('·'), i('Hb'), o('·'), sub(i('S'), r(i('a'), sub(i('O'), n(2)))), o('+'), t('dissolved'), t(',     '), sub(i('DO'), n(2)), o('='), i('CO'), o('·'), sub(i('C'), r(i('a'), sub(i('O'), n(2)))), o('·'), n(10), t(',     '), sub(i('C'), r(i('v'), sub(i('O'), n(2)))), o('='), sub(i('C'), r(i('a'), sub(i('O'), n(2)))), o('−'), fr(sub(i('VO'), n(2)), r(n(10), o('·'), i('CO')))), 1)}
+  <p>Mixed venous saturation follows from the venous content by the Fick principle, which is why SvO₂ falls when output falls with VO₂ unchanged.</p></section>
+
+  <section id="m-reflex"><h2>Baroreflex</h2>
+  <p>Off by default, so each change shows its pure effect. When switched on, a proportional controller with a lag compares MAP with a 95 mmHg set point each beat: the drive <i>x</i> moves 20% of the way toward clamp(1.2·(95 − MAP)/25, −1, 1.5). It then scales heart rate (×(1 + 0.45<i>x</i>)), contractility (×(1 + 0.25<i>x</i>)), relaxation (τ × (1 − 0.15<i>x</i>)), SVR (×(1 + 0.3<i>x</i>)) and venous tone (unstressed volume − 350<i>x</i> mL).</p></section>
+
+  <section id="m-drugs"><h2>Drugs</h2>
+  <p>Drugs act on parameters, not on outcomes: each dose multiplies or shifts the settings its receptors would affect, and the haemodynamics follow from the equations above. The effects are teaching approximations, right in direction rather than fitted to trial data. Doses are per unit of the control (for example per μg/kg/min).</p>
+  <div class="scroll"><table class="stt mtab"><thead><tr><th scope="col">Drug</th><th scope="col">Contractility (E<sub>es</sub>)</th><th scope="col">Heart rate</th><th scope="col">SVR</th><th scope="col">Other</th></tr></thead><tbody>
+  <tr><th scope="row">Norepinephrine</th><td>×(1 + 0.7d)</td><td>+12d</td><td>×(1 + 2.4d)</td><td>venoconstriction (−700d mL unstressed), PVR ×(1 + 0.4d)</td></tr>
+  <tr><th scope="row">Epinephrine</th><td>×(1 + 1.6d)</td><td>+60d</td><td>×(1 − 0.8d + 3.2d²): falls at low dose, rises at high</td><td>faster relaxation, venoconstriction, VO₂ up</td></tr>
+  <tr><th scope="row">Dopamine</th><td>×(1 + 0.035d), up to 12</td><td>+1.8d</td><td>falls below 3, rises above 8</td><td>venoconstriction above 5</td></tr>
+  <tr><th scope="row">Vasopressin</th><td>–</td><td>–</td><td>×(1 + 12d)</td><td>venoconstriction; spares the pulmonary bed</td></tr>
+  <tr><th scope="row">Phenylephrine</th><td>–</td><td>–</td><td>×(1 + 0.5d)</td><td>venoconstriction, PVR ×(1 + 0.15d)</td></tr>
+  <tr><th scope="row">Midodrine (mg)</th><td>–</td><td>–</td><td>×(1 + 0.025d)</td><td>mild venoconstriction</td></tr>
+  <tr><th scope="row">Dobutamine</th><td>×(1 + 0.045d)</td><td>+1.6d</td><td>×(1 − 0.012d)</td><td>faster relaxation, VO₂ up</td></tr>
+  <tr><th scope="row">Milrinone</th><td>×(1 + 0.55d)</td><td>+12d</td><td>×(1 − 0.5d)</td><td>PVR ×(1 − 0.5d), venodilation, faster relaxation</td></tr>
+  <tr><th scope="row">Nitroprusside</th><td>–</td><td>–</td><td>×(1 − 0.16d)</td><td>venodilation, PVR down, arterial compliance up</td></tr>
+  <tr><th scope="row">Nitroglycerin (μg/min)</th><td>–</td><td>–</td><td>×(1 − 0.0011d)</td><td>mainly venodilation (+3.2d mL unstressed)</td></tr>
+  <tr><th scope="row">ACE inhibitor / ARB (fraction of target)</th><td>–</td><td>–</td><td>×(1 − 0.2d)</td><td>mild venodilation</td></tr>
+  <tr><th scope="row">ARNI (fraction of target)</th><td>–</td><td>–</td><td>×(1 − 0.26d)</td><td>more venodilation (+280d mL)</td></tr>
+  <tr><th scope="row">β-blocker (0–1)</th><td>×(1 − 0.18d)</td><td>×(1 − 0.3d)</td><td>–</td><td></td></tr>
+  <tr><th scope="row">Inhaled NO (0–1)</th><td>–</td><td>–</td><td>–</td><td>PVR ×(1 − 0.45d)</td></tr></tbody></table></div>
+  <p class="help">Exercise works the same way: heart rate +92 bpm at full effort, contractility up, faster relaxation, arteriolar and venous dilation and constriction of the unstressed pool, and VO₂ up by 1,700 mL/min.</p></section>
+
+  <section id="m-derived"><h2>What the readouts mean</h2>
+  <ul><li><b>Cardiac output</b> is arterial outflow averaged over the beat; <b>cardiac index</b> divides by a body surface area of 1.9 m².</li>
+  <li><b>SVR</b> = 80 × (MAP − CVP) ÷ CO and <b>PVR</b> = (mean PA − PCWP) ÷ CO, computed from the simulated pressures exactly as at the bedside.</li>
+  <li><b>Ea</b> (arterial elastance) = end-systolic pressure ÷ stroke volume; <b>Ea/Ees</b> is ventricular–arterial coupling.</li>
+  <li><b>Cardiac power output</b> = MAP × CO ÷ 451 (watts).</li>
+  <li><b>Pulse-pressure variation</b> = (max − min pulse pressure) ÷ their mean over one breath.</li>
+  <li><b>Mitral E and A</b> are peak early and atrial mitral flows divided by valve area; <b>deceleration time</b> runs from the E peak until flow falls below 15% of it.</li>
+  <li><b>TAPSE</b> is estimated from RV ejection fraction by inverting a published CMR regression, RVEF = 1.77 × TAPSE (mm) + 17. The model has no tricuspid annulus to measure directly.</li>
+  <li><b>PASP from the TR jet</b> = 4<i>v</i>² + RA pressure, mirroring how echo estimates it.</li></ul></section>
+
+  <section id="m-gas"><h2>Gas-exchange lessons</h2>
+  <p>The respiratory lessons use standard physiology rather than the circulation model:</p>
+  <ul><li><b>Alveolar gas equation:</b> PAO₂ = FiO₂ × (P<sub>B</sub> − 47) − PaCO₂ ÷ R, with barometric pressure P<sub>B</sub> = 760·e<sup>−altitude/7990 m</sup>.</li>
+  <li><b>Oxygen dissociation curve:</b> a Hill equation, S = P<sup>2.7</sup> ÷ (P<sup>2.7</sup> + P50<sup>2.7</sup>), with P50 = 26.8 mmHg (19 for fetal haemoglobin), shifted by pH (Bohr effect), temperature, 2,3-DPG and carbon monoxide.</li>
+  <li><b>Content:</b> 1.34 × Hb × S + 0.003 × PO₂ mL/dL.</li>
+  <li><b>V/Q units</b> are solved at steady state: O₂ taken up from the alveolus equals O₂ added to the blood, (V/Q)(P<sub>I</sub>O₂ − P<sub>A</sub>O₂)/0.863 = 10(C<sub>c</sub>O₂ − C<sub>v</sub>O₂), with a matching balance for CO₂.</li>
+  <li><b>Shunt</b> mixes end-capillary and mixed-venous blood, with mixed-venous content tied to cardiac output by the Fick principle.</li>
+  <li><b>Diffusion</b> integrates oxygen uptake along the capillary over the transit time, with uptake proportional to the alveolar–capillary PO₂ gap.</li>
+  <li><b>V-V ECMO</b> mixes oxygenated circuit blood (minus recirculation) with venous return; CO₂ clearance follows sweep gas and native ventilation.</li></ul></section>
+
+  <section id="m-fit"><h2>Building a patient from numbers</h2>
+  <p>The patient builder turns bedside or echo numbers into model settings by solving an inverse problem. It chooses a set of <b>levers</b> (blood volume, SVR, LV contractility, LV size, LV stiffness, PVR, RV contractility and RV stiffness, plus mitral inflow area, LA contractility, pulmonary-venous compliance and relaxation for echo Doppler) and minimises the weighted mismatch at steady state:</p>
+  ${m(r(i('min'), sub(i('Σ'), i('i')), sup(r(o('('), fr(r(sub(i('y'), i('i')), o('('), i('x'), o(')'), o('−'), sub(i('y'), r(i('i'), o(','), t('target')))), sub(i('tol'), i('i'))), o(')')), n(2))), 1)}
+  <p>It uses the <b>Levenberg–Marquardt</b> method. The sensitivity (Jacobian) of each output to each lever is measured by nudging one lever at a time and re-running the model, which settles in seconds by starting from the last solution. Positive parameters are adjusted on a log scale. With echo Doppler targets, a second pass freezes the Doppler settings and pins the core pressures and flows exactly. Heart rate is never adjusted: it is a measured value.</p>
+  <p>From a TTE report it derives: <b>CI</b> = LVOT stroke volume × HR ÷ BSA, with LVOT SV = VTI × π(D/2)² if not reported; <b>RA pressure</b> from the IVC size and collapse; <b>PASP</b> = 4<i>v</i><sub>TR</sub>² + RA pressure; and <b>PCWP</b> ≈ 1.24 × E/e′ + 1.9 (Nagueh), capped below the mean PA pressure implied by PASP (mPAP ≈ 0.61 × PASP + 2). Valve lesions, effusion, rhythm and the diastolic grade are read from the text.</p></section>
+
+  <section id="m-viz"><h2>How the pictures are drawn</h2>
+  <ul><li><b>Blood cells</b> on the circulation picture move at a speed proportional to cardiac output.</li>
+  <li><b>Back-ups:</b> along each vessel the cells' “slowness” rises linearly toward the obstruction, <i>w</i>(<i>s</i>) = 1 + (<i>j</i> − 1)(0.45 + 0.55·<i>s</i>/<i>L</i>), where <i>j</i> = (SVR/1300)<sup>1.3</sup> for the systemic artery, (PVR/1.3)<sup>1.1</sup> for the pulmonary artery and (vein width/normal)<sup>1.6</sup> for the veins. Flow is conserved, so slower cells bunch up.</li>
+  <li><b>Arterioles</b> are drawn with width ∝ SVR<sup>−0.6</sup>. Real vessel radius varies with resistance to the −¼ power (Poiseuille), so the drawing exaggerates the change to make it visible.</li>
+  <li><b>Veins</b> are drawn 50 × (0.7 + 0.075 × CVP) units wide: normal at CVP 4, thin when dry, swollen when congested.</li>
+  <li><b>PV loop landmarks</b> come straight from the last beat: end-diastole is the volume when the mitral valve closes, end-systole the point of highest <i>P</i>/(<i>V</i> − <i>V</i><sub>0</sub>).</li></ul></section>
+
+  <section id="m-limits"><h2>Limitations</h2>
+  <ul><li><b>No septal interaction:</b> the ventricles interact only through the pericardium, so RV dilation does not push the septum into the LV.</li>
+  <li><b>Stressed volume is low</b> (about 0.8 L, against about 1.7 L measured in ICU patients), so volume changes move CVP less than at the bedside, and losing a litre empties the circulation.</li>
+  <li><b>MVO₂ reads about 1.5 times high</b> in absolute terms; relative changes are right.</li>
+  <li><b>Drug effects are illustrative:</b> right in direction, not fitted to trial magnitudes, and oral drugs act instantly rather than over weeks.</li>
+  <li><b>Lumped compartments:</b> no wave reflection, no regional circulations (brain, kidney, gut) and no autoregulation beyond the optional baroreflex.</li>
+  <li><b>TAPSE and E/e′-based PCWP are estimates,</b> as they are clinically.</li></ul>
+  <p>Circulus is a teaching model, not a clinical tool.</p></section>
+
+  <section id="m-params"><h2>Parameter values</h2><p>The normal heart's settings, read from the running code:</p>${mathParamTable()}</section>
+
+  <section id="m-reading"><h2>Further reading</h2>
+  <ul><li>Suga H, Sagawa K. Instantaneous pressure–volume relationships and their ratio in the excised, supported canine left ventricle. <i>Circ Res</i> 1974. The time-varying elastance concept.</li>
+  <li>Burkhoff D, Dickstein ML and colleagues, Harvi (harvi.academy): the teaching simulator whose approach Circulus follows.</li>
+  <li>Westerhof N, Lankhaar JW, Westerhof BE. The arterial Windkessel. <i>Med Biol Eng Comput</i> 2009.</li>
+  <li>Guyton AC. Determination of cardiac output by equating venous return curves with cardiac response curves. <i>Physiol Rev</i> 1955.</li>
+  <li>Suga H. Ventricular energetics. <i>Physiol Rev</i> 1990. Pressure–volume area and myocardial O₂ use.</li>
+  <li>Nagueh SF et al. Doppler tissue imaging: a noninvasive technique for evaluation of left ventricular relaxation and estimation of filling pressures. <i>J Am Coll Cardiol</i> 1997. The E/e′ estimate of PCWP.</li>
+  <li>TAPSE–RVEF regression: <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3106950/" target="_blank" rel="noopener">validation of echocardiographic RV indices with CMR</a>, <i>J Cardiovasc Magn Reson</i> 2011.</li></ul></section>
+  </article>`;
+}
+
 // ---------- home: live circulation picture
 // picture frame: the image (1024×1536) fills the middle 56% of the box; gutters hold the value cards
 const CM_PATHS = {
@@ -3428,6 +3625,7 @@ document.addEventListener('click', e => {
   const t = e.target.closest('button, a'); if (!t) return;
   if (t.dataset.mode) { setMode(t.dataset.mode === 'adv'); return; }
   if (t.dataset.scen) { cmScenario(t.dataset.scen); return; }
+  if (t.dataset.jump) { e.preventDefault(); const el = document.getElementById('m-' + t.dataset.jump); if (el) { el.scrollIntoView({ behavior: cmReduce() ? 'auto' : 'smooth', block: 'start' }); el.setAttribute('tabindex', '-1'); el.focus({ preventScroll: true }); } return; }
   if (t.dataset.lv) { S.labView.view = t.dataset.lv; const c = t.dataset.lv === 'circ';
     $('#pvwrap').hidden = c; $('#circwrap').hidden = !c; document.querySelectorAll('[data-lv]').forEach(b => { const on = b.dataset.lv === t.dataset.lv; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
     if (c) { cmOff = {}; cmUpdate(sim, true); } S.dirty = true; return; }
@@ -3491,7 +3689,7 @@ $('#q').addEventListener('input', e => { const q = e.target.value.toLowerCase();
 
 // ---------- nav
 const GROUPS_NAV = window.GROUPS_NAV;
-$('#nav').insertAdjacentHTML('beforeend', `<a href="#" class="homelink">Overview and model</a>` + GROUPS_NAV.map(g => `<div class="ng"><h3>${esc(g[0])}</h3>${g[1].map(id => { const s = SECTIONS.find(x => x.id === id); return s ? `<a href="#${id}">${esc(s.t)}</a>` : ''; }).join('')}</div>`).join(''));
+$('#nav').insertAdjacentHTML('beforeend', `<a href="#" class="homelink">Overview and model</a><a href="#math" class="homelink">The math behind Circulus</a>` + GROUPS_NAV.map(g => `<div class="ng"><h3>${esc(g[0])}</h3>${g[1].map(id => { const s = SECTIONS.find(x => x.id === id); return s ? `<a href="#${id}">${esc(s.t)}</a>` : ''; }).join('')}</div>`).join(''));
 $('#navsel').innerHTML = `<option value="">Overview</option>` + GROUPS_NAV.map(g => `<optgroup label="${esc(g[0])}">${g[1].map(id => { const s = SECTIONS.find(x => x.id === id); return s ? `<option value="${id}">${esc(s.t)}</option>` : ''; }).join('')}</optgroup>`).join('');
 
 // ---------- main loop
