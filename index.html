@@ -380,6 +380,10 @@ body.adv .basic-only{display:none!important}
 .viewsw{margin:0 0 10px}
 #circwrap .cmfig{padding:10px}
 .cmcap{font-size:13px;color:var(--muted);margin:8px 0 0}
+.trpat{margin:4px 0 10px;font-size:14px}
+.trg{margin:8px 0}
+.trg .lbl{display:block;font-size:12.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px}
+.trg .bapply{margin:0}
 
 </style>
 </head>
@@ -2857,11 +2861,12 @@ function newCase(silent) {
 function scoreText() { const s = S.score || [0, 0]; return s[1] ? `${s[0]} of ${s[1]} correct` : ''; }
 
 // ---------- PV loop lab
-const LAB_TABS = [['Build patient and treat', 'build'], ['Heart', 1], ['Targets: LVEF, MVO₂, SI, CI', 0, 1], ['Circulation', 2], ['Inotropes and pressors (incl. midodrine)', 5], ['Valves and shunts', 3, 1], ['Pericardium and breathing', 4, 1], ['Afterload reduction (ACEi/ARB/ARNI) and other drugs', 6], ['Devices and O₂', 7, 1]];
+const LAB_TABS = [['Build patient', 'build'], ['Treat and compare', 'treat'], ['Heart', 1], ['Targets: LVEF, MVO₂, SI, CI', 0, 1], ['Circulation', 2], ['Inotropes and pressors (incl. midodrine)', 5], ['Valves and shunts', 3, 1], ['Pericardium and breathing', 4, 1], ['Afterload reduction (ACEi/ARB/ARNI) and other drugs', 6], ['Devices and O₂', 7, 1]];
 function renderLabTab() {
   const el = $('#tabbody'); if (!el) return;
   const g = LAB_TABS[S.tab][1];
   if (g === 'build') el.innerHTML = buildHTML();
+  else if (g === 'treat') el.innerHTML = treatHTML();
   else { const ks = GROUPS[g][1], nAdv = ks.filter(k => !BASIC_CTL.has(k)).length;
     el.innerHTML = ks.map(k => BASIC_CTL.has(k) ? ctlHTML(k) : `<div class="adv-only">${ctlHTML(k)}</div>`).join('') +
       (nAdv ? `<p class="help basic-only moreadv">${nAdv} more setting${nAdv > 1 ? 's' : ''} in this tab. <button type="button" class="linkbtn" data-mode="adv">Show Advanced</button></p>` : ''); }
@@ -3103,10 +3108,16 @@ function buildHTML() {
   <div class="bq"><span class="lbl">Quick fill</span>${BQUICK.map((q, i) => `<button type="button" class="tg" data-bq="${i}">${esc(q[0])}</button>`).join('')}</div>
   <button class="act" id="bpbuild">Build this patient</button>
   <div class="bstat" id="bpstat">${S.bstat || ''}</div>
-  <h3 class="bh">Then treat</h3>
-  <p class="help">Compare diuresis, fluid, pressors (IV and midodrine), afterload reduction (nitroprusside, ACE inhibitor/ARB, ARNI) and inotropes from the current state. Each runs to steady state separately; the table appears under the loop. Apply any one to the live patient.</p>
+  <p class="help">Next: open <button type="button" class="linkbtn" data-tab="1">Treat and compare</button> to try treatments on this patient.</p></div>`;
+}
+function treatHTML() {
+  return `<div class="build"><p class="help">Works on whatever patient is loaded now: a preset from “Start from”, a built patient, or one you have edited. Compare runs each treatment to steady state separately and lists the results under the ${S.labView && S.labView.view === 'circ' ? 'circulation' : 'loop'}; Apply gives one to the live patient.</p>
+  <p class="trpat">Current patient: <b>${esc(S.presetName || '')}</b></p>
   <button class="act" id="bpcompare">Compare treatments</button>
-  <div class="bapply">${STRATS.map((st, i) => `<button type="button" class="tg" data-apply="${i}">${esc(st[0])}</button>`).join('')}</div></div>`;
+  <h3 class="bh">Apply one now</h3>
+  ${[['Volume', [0, 1]], ['Vasopressors', [2, 3, 4]], ['Afterload reduction', [5, 6, 7]], ['Venodilator', [8]], ['Inotropes', [9, 10]]].map(([g, ix]) =>
+    `<div class="trg"><span class="lbl">${esc(g)}</span><div class="bapply">${ix.map(i => `<button type="button" class="tg" data-apply="${i}" title="${esc(STRATS[i][1])}">${esc(STRATS[i][0])}</button>`).join('')}</div></div>`).join('')}
+  <p class="help">Each application is added to the list of changes above the chart, where × undoes it. The previous ${S.labView && S.labView.view === 'circ' ? 'state' : 'loop'} stays as a dashed ghost.</p></div>`;
 }
 // interventions are switched off before fitting: a built patient is the patient off treatment
 const BCLEAR = { dobu: 0, milr: 0, ntg: 0, snp: 0, ne: 0, bb: 0, ino: 0, epi: 0, dopa: 0, vaso: 0, phenyl: 0, acei: 0, arni: 0, mido: 0, exer: 0, imp: 0, ecmo: 0, rpump: 0, baro: 0,
