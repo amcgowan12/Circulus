@@ -425,6 +425,7 @@ body.mathmode #play,body.mathmode #speed,body.mathmode .mode{display:none}
 .sharebox input{width:100%;min-height:36px;border:1px solid var(--line);border-radius:8px;padding:0 8px;font-size:13px;background:var(--bg);color:inherit}
 #labundo:disabled{opacity:.45;cursor:default}
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
+.changes[hidden]{display:none!important}
 
 </style>
 </head>
@@ -2932,8 +2933,9 @@ function updateChanges() {
   const el = $('#changes'); if (!el || !sim) return;
   const diffs = Object.keys(CTL).filter(k => !CTL[k][8] || true).filter(k => Math.abs((sim.p[k] ?? 0) - (S.base[k] ?? 0)) > 1e-9);
   const html = diffs.length ? '<span class="cl2">Changed from “' + esc(S.presetName) + '”:</span>' + diffs.map(k => { const c = CTL[k], f = v => c[8] ? c[8][v] : fmt(v * c[5], c[6]); return `<button class="chg" data-reset="${k}" title="Return to preset value">${esc(c[0])}: ${esc(f(S.base[k]))} → <b>${esc(f(sim.p[k]))}</b>${c[8] ? '' : ' ' + esc(c[1])}<i aria-hidden="true">×</i></button>`; }).join('')
-    : '<span class="cl2">No changes from “' + esc(S.presetName) + '” yet. Edit any variable on the right; the old loop stays as a dashed ghost.</span>';
+    : '';
   if (el.innerHTML !== html) el.innerHTML = html;
+  el.hidden = !html;
 }
 
 // ---------- lab conveniences: undo, share link, image export, first-visit tip
