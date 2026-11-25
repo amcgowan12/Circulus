@@ -3325,22 +3325,20 @@ function cmDraw(s, dt) {
   const vel = 330 * Math.max(0.2, b.CO / 5.5) * (running ? speed : 0);
   cmOverlayUpdate(b);
   // local slow-downs, each confined to its own section of the circuit (flow is conserved, so slower cells crowd closer):
-  //  SVR: the whole arterial path backs up from the arterioles to the aorta, densest just before the arterioles
-  //  CVP: the whole venous return tube slows as it distends (velocity = flow ÷ cross-section ∝ 1/width²)
+  //  SVR: systemic artery backs up from the arterioles to the aorta, densest just before the arterioles
+  //  PVR: pulmonary artery backs up from the lung vessels to the right ventricle, densest just before the lungs
+  //  CVP: veins back up from the right atrium toward the body, densest at the heart (and slower as they distend)
   const svrJam = Math.max(0.4, Math.min(4, Math.pow(b.SVR / 1300, 1.3)));
+  const pvr = isFinite(b.PVR) ? b.PVR : 1.3, pvrJam = Math.max(0.5, Math.min(4, Math.pow(Math.max(pvr, 0.2) / 1.3, 1.1)));
   const vw = Math.max(26, Math.min(112, 50 * (0.7 + 0.075 * b.RAP))) / 50, cvpJam = Math.max(0.5, Math.min(4, Math.pow(vw, 1.6)));
-  const SEC = { ven: [0, cvpJam] };
+  const GRADE = { sa: svrJam, pa: pvrJam, ven: cvpJam };   // every path's end is the obstruction: arterioles, lung vessels, right atrium
   for (const k in CM_PATHS) {
     const p = document.getElementById('cmp_' + k), g = document.getElementById('cmd_' + k); if (!p || !g) continue;
     const L = p.getTotalLength(), gap = 90, col = CM_PATHS[k][1], r = 11 * CM_PATHS[k][2];
-    // travel "time" in length units. Arterial path: slowness rises linearly from the heart to the arterioles,
-    // w(s) = 1 + (j−1)(0.45 + 0.55 s/L), so t(s) = B s + Q s² (inverted below). Venous path: uniformly j× slower.
-    let T, toS;
-    if (k === 'sa') {
-      const c = svrJam - 1, B = 1 + 0.45 * c, Q = 0.55 * c / (2 * L);
-      T = B * L + Q * L * L;
-      toS = t => Math.abs(Q) < 1e-12 ? t / B : (-B + Math.sqrt(Math.max(0, B * B + 4 * Q * t))) / (2 * Q);
-    } else { const [f0, j] = SEC[k] || [1, 1], a = f0 * L; T = a + (L - a) * j; toS = t => t < a ? t : a + (t - a) / j; }
+    // travel "time" in length units: slowness rises linearly along the path toward the obstruction at its end,
+    // w(s) = 1 + (j−1)(0.45 + 0.55 s/L), so t(s) = B s + Q s² (inverted below); j = 1 gives normal flow
+    const c = (GRADE[k] || 1) - 1, B = 1 + 0.45 * c, Q = 0.55 * c / (2 * L), T = B * L + Q * L * L;
+    const toS = t => Math.abs(Q) < 1e-12 ? t / B : (-B + Math.sqrt(Math.max(0, B * B + 4 * Q * t))) / (2 * Q);
     const n = Math.max(2, Math.round(T / gap)), gp = T / n;
     if (g.childElementCount !== n) g.innerHTML = Array.from({ length: n }, () => `<circle r="${r}" fill="#fff" stroke="${col}" stroke-width="3" opacity=".92"/>`).join('');
     cmOff[k] = ((cmOff[k] || 0) + vel * dt) % gp;
