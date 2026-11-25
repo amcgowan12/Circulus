@@ -414,6 +414,18 @@ body.navopen main{filter:brightness(.92)}
 @media (max-width:760px){.hlink{font-size:13px;padding:0 9px}.brand small{display:none}}
 @media (max-width:520px){.hlink{order:3}}
 
+/* usability: header on pages without a simulation, toast, lab tip, share box */
+body.nosim #settle,body.nosim #resetsec,body.nosim #simt{display:none}
+body.mathmode #play,body.mathmode #speed,body.mathmode .mode{display:none}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:#1b1f24;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:60;max-width:90vw}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.labtip{border:1px solid var(--line);border-left:4px solid var(--brand,#8a1023);background:var(--panel);border-radius:10px;padding:10px 14px;margin:0 0 10px;font-size:14px}
+.labtip ol{margin:6px 0 8px;padding-left:20px}.labtip li{margin:2px 0}
+.sharebox{width:100%;margin-top:6px}.sharebox label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600}
+.sharebox input{width:100%;min-height:36px;border:1px solid var(--line);border-radius:8px;padding:0 8px;font-size:13px;background:var(--bg);color:inherit}
+#labundo:disabled{opacity:.45;cursor:default}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+
 </style>
 </head>
 <body>
@@ -2719,6 +2731,7 @@ function applyCtl(k, g, v) {
   v = Math.min(c[3], Math.max(c[2], v));
   if (g) { G[k] = v; S.dirty = true; }
   else {
+    if (sec && sec.kind === 'lab') recordUndo(true);
     if (sec && sec.kind === 'lab' && S.labView.ghost && performance.now() - (S.lastEdit || 0) > 1200) pinLoop('Before: ' + c[0]);
     S.lastEdit = performance.now();
     sim.set(k, v); afterChange(k);
@@ -2738,7 +2751,9 @@ const GROUPS = [
   ['Model parameters: devices, coronary, oxygen and exercise', ['imp', 'ecmo', 'rpump', 'exer', 'cadOn', 'sten', 'VO2', 'Hb', 'SaO2']],
 ];
 function render(id) {
+  const qi = (id || '').indexOf('?'), qs = qi >= 0 ? id.slice(qi + 1) : ''; if (qi >= 0) id = id.slice(0, qi);
   sec = SECTIONS.find(s => s.id === id);
+  document.body.classList.toggle('nosim', !sec); document.body.classList.toggle('mathmode', id === 'math');
   document.body.classList.toggle('labmode', !!sec && sec.kind === 'lab'); document.body.classList.remove('navopen');
   const main = $('#main');
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + id));
@@ -2761,7 +2776,7 @@ function render(id) {
   main.innerHTML = `<article class="lesson">
   ${sec.kind === 'lab' ? '' : `<header class="lhead"><p class="crumb">${esc(grp ? grp[0] : '')}</p><h1>${esc(sec.t)}</h1>${sec.lede ? `<p class="lede">${sec.lede}</p>` : ''}</header>`}
   ${sec.kind === 'student' ? studentHTML() : ''}
-  ${sec.kind === 'lab' ? `<div class="work labw">${vbarHTML()}<div class="lableft"><div class="changes" id="changes" aria-live="polite"></div><div class="seg viewsw" role="group" aria-label="Main view"><span class="lbl">View</span><button type="button" data-lv="pv" class="on" aria-pressed="true">PV loop</button><button type="button" data-lv="circ" aria-pressed="false">Circulation</button></div><div id="pvwrap"><div class="pins"></div>${panelHTML(sec.panels[0], 0)}<div class="pvann" id="pvann" role="group" aria-label="PV loop landmarks"></div></div><div id="circwrap" hidden>${circModelHTML(true)}</div><div class="mini" id="mini" aria-live="off"></div><p class="tgtline" id="tgtline" hidden></p><div class="drugfx" id="drugfx"></div><div class="drugfx strat" id="strat" hidden></div></div>${labAside()}</div><div class="plots below">${sec.panels.slice(1).map((p, i) => panelHTML(p, i + 1)).join('')}</div>` : ''}
+  ${sec.kind === 'lab' ? `<div class="work labw">${vbarHTML()}<div class="lableft"><div class="changes" id="changes" aria-live="polite"></div>${labTipHTML()}<div class="seg viewsw" role="group" aria-label="Main view"><span class="lbl">View</span><button type="button" data-lv="pv" class="on" aria-pressed="true">PV loop</button><button type="button" data-lv="circ" aria-pressed="false">Circulation</button></div><div id="pvwrap"><div class="pins"></div>${panelHTML(sec.panels[0], 0)}<div class="pvann" id="pvann" role="group" aria-label="PV loop landmarks"></div></div><div id="circwrap" hidden>${circModelHTML(true)}</div><div class="mini" id="mini" aria-live="off"></div><p class="tgtline" id="tgtline" hidden></p><div class="drugfx" id="drugfx"></div><div class="drugfx strat" id="strat" hidden></div></div>${labAside()}</div><div class="plots below">${sec.panels.slice(1).map((p, i) => panelHTML(p, i + 1)).join('')}</div>` : ''}
   ${!sec.kind && !sec.panels.some(p => p.type === 'monitor') ? vbarHTML() : ''}
   <div class="work" ${sec.kind === 'lab' ? 'hidden' : ''}>
     <div class="plots">${sec.kind === 'lab' ? '' : panels}</div>
@@ -2782,6 +2797,7 @@ function render(id) {
   </article>`;
   window.scrollTo(0, 0);
   if (sec.kind === 'lab' && PENDING_PRESET) { const pp = PENDING_PRESET; PENDING_PRESET = null; setTimeout(() => loadLabPreset(pp), 0); }
+  if (sec.kind === 'lab' && qs) { const sh = readShared(qs); if (sh) { sim = new Sim(sh.p); sim.run(12); S.base = Object.assign({}, DEFAULTS, sh.p); S.presetName = /\(shared\)$/.test(sh.name) ? sh.name : sh.name + ' (shared)'; renderLabTab(); updateChanges(); toast('Opened a shared patient: ' + sh.name); } }
   if (sec.panels.some(p => p.type === 'starling')) setTimeout(computeCurve, 30);
   if (sec.panels.some(p => p.type === 'drugcmp')) { S.cmp = null; setTimeout(computeCmp, 30); }
   if (sec.panels.some(p => p.type === 'svr')) { S.sweep = null; setTimeout(computeSweep, 30); }
@@ -2794,7 +2810,9 @@ function labBar() {
   return `<div class="labbar"><label class="lp">Start from <select id="labpreset">${window.LAB_PRESETS.map(p => `<option>${esc(p[0])}</option>`).join('')}</select></label>
   <span class="tgs"><span class="tl">Loops</span>${tg('LV', 'LV')}${tg('RV', 'RV')}${tg('LA', 'LA')}${tg('RA', 'RA')}</span>
   <span class="tgs"><span class="tl">Lines</span>${tg('espvr', 'ESPVR')}${tg('edpvr', 'EDPVR')}${tg('ea', 'Ea')}<span class="adv-only">${tg('pva', 'PVA shading')}</span>${tg('ann', 'Landmarks')}</span>
-  <span class="tgs">${tg('ghost', 'Ghost previous loop')}<button class="tg" id="labreset">Reset all</button></span></div>`;
+  <span class="tgs">${tg('ghost', 'Ghost previous loop')}<button class="tg" id="labreset" title="Return to the chosen starting patient">Reset all</button></span>
+  <span class="tgs"><button class="tg" id="labundo" disabled title="Nothing to undo yet">↶ Undo</button><button class="tg" id="labshare" title="Copy a link that opens the lab with this exact patient">Share patient</button><button class="tg" id="labimg" title="Download the PV loop as a PNG image">Save loop image</button></span>
+  <div class="sharebox" id="sharebox" hidden><label>Copy this link<input type="text" readonly></label></div></div>`;
 }
 function labAside() {
   return `<aside class="ctrl lab" aria-label="Edit variables">${labBar()}<h2>Edit variables</h2><p class="help">Drag a slider or type an exact value and press Enter.</p>
@@ -2892,7 +2910,7 @@ function newCase(silent) {
 function scoreText() { const s = S.score || [0, 0]; return s[1] ? `${s[0]} of ${s[1]} correct` : ''; }
 
 // ---------- PV loop lab
-const LAB_TABS = [['Build patient', 'build'], ['Treat and compare', 'treat'], ['Heart', 1], ['Targets: LVEF, MVO₂, SI, CI', 0, 1], ['Circulation', 2], ['Inotropes and pressors (incl. midodrine)', 5], ['Valves and shunts', 3, 1], ['Pericardium and breathing', 4, 1], ['Afterload reduction (ACEi/ARB/ARNI) and other drugs', 6], ['Devices and O₂', 7, 1]];
+const LAB_TABS = [['Build patient', 'build'], ['Treat and compare', 'treat'], ['Heart', 1], ['Circulation', 2], ['Pressors and inotropes', 5], ['Vasodilators and other drugs', 6], ['Targets', 0, 1], ['Valves and shunts', 3, 1], ['Pericardium and breathing', 4, 1], ['Devices and O₂', 7, 1]];
 function renderLabTab() {
   const el = $('#tabbody'); if (!el) return;
   const g = LAB_TABS[S.tab][1];
@@ -2916,6 +2934,57 @@ function updateChanges() {
   const html = diffs.length ? '<span class="cl2">Changed from “' + esc(S.presetName) + '”:</span>' + diffs.map(k => { const c = CTL[k], f = v => c[8] ? c[8][v] : fmt(v * c[5], c[6]); return `<button class="chg" data-reset="${k}" title="Return to preset value">${esc(c[0])}: ${esc(f(S.base[k]))} → <b>${esc(f(sim.p[k]))}</b>${c[8] ? '' : ' ' + esc(c[1])}<i aria-hidden="true">×</i></button>`; }).join('')
     : '<span class="cl2">No changes from “' + esc(S.presetName) + '” yet. Edit any variable on the right; the old loop stays as a dashed ghost.</span>';
   if (el.innerHTML !== html) el.innerHTML = html;
+}
+
+// ---------- lab conveniences: undo, share link, image export, first-visit tip
+function labSnap() { return { p: Object.assign({}, sim.p), base: S.base, name: S.presetName }; }
+function recordUndo(group) {
+  if (!sim || !sec || sec.kind !== 'lab') return;
+  const now = performance.now();
+  if (group && now - (S.undoT || 0) < 900) { S.undoT = now; return; }   // a slider drag counts as one step
+  S.undoT = now; (S.undo || (S.undo = [])).push(labSnap()); if (S.undo.length > 60) S.undo.shift(); syncUndo();
+}
+function syncUndo() { const b = $('#labundo'); if (b) { const n = (S.undo || []).length; b.disabled = !n; b.title = n ? `Undo the last change (${n} step${n > 1 ? 's' : ''}) · Ctrl/⌘+Z` : 'Nothing to undo yet'; } }
+function labUndo() {
+  const s0 = S.undo && S.undo.pop(); if (!s0 || !sim) return;
+  pinLoop('Before undo');
+  S.base = s0.base; S.presetName = s0.name;
+  for (const k in s0.p) if (typeof s0.p[k] === 'number' && sim.p[k] !== s0.p[k]) sim.set(k, s0.p[k]);
+  const sel = $('#labpreset'); if (sel && [...sel.options].some(o => o.value === s0.name)) sel.value = s0.name;
+  S.strat = null; renderStrat(); renderLabTab(); updateChanges(); syncUndo(); toast('Undone');
+}
+// share: only settings that differ from the normal heart go into the link
+function shareLink() {
+  const d = {}; for (const k in sim.p) { const v = sim.p[k]; if (typeof v === 'number' && k[0] !== 't' && Math.abs(v - (DEFAULTS[k] ?? 0)) > 1e-9) d[k] = +v.toPrecision(5); }
+  const enc = btoa(unescape(encodeURIComponent(JSON.stringify({ n: S.presetName, p: d })))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  return location.href.split('#')[0] + '#pv-loop-lab?p=' + enc;
+}
+function readShared(qs) {
+  try { const m = /(?:^|&)p=([^&]+)/.exec(qs || ''); if (!m) return null; const s = m[1].replace(/-/g, '+').replace(/_/g, '/');
+    const o = JSON.parse(decodeURIComponent(escape(atob(s + '==='.slice((s.length + 3) % 4)))));
+    const p = {}; for (const k in o.p) if (k in DEFAULTS && isFinite(o.p[k])) p[k] = +o.p[k]; return { name: String(o.n || 'Shared patient').slice(0, 60), p };
+  } catch (e) { return null; }
+}
+async function copyShare() {
+  const url = shareLink();
+  try { await navigator.clipboard.writeText(url); toast('Link copied: anyone who opens it sees this patient'); }
+  catch (e) { const box = $('#sharebox'); if (box) { box.hidden = false; box.querySelector('input').value = url; box.querySelector('input').select(); } }
+}
+function saveLoopImage() {
+  const cv = $('#cv0'); if (!cv) return;
+  const out = document.createElement('canvas'); out.width = cv.width; out.height = cv.height;
+  const c = out.getContext('2d'); c.fillStyle = '#fff'; c.fillRect(0, 0, out.width, out.height); c.drawImage(cv, 0, 0);
+  const a = document.createElement('a'); a.download = 'circulus-pv-loop.png'; a.href = out.toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove();
+  toast('Loop image saved');
+}
+function toast(msg) {
+  let t = $('#toast'); if (!t) { t = document.createElement('div'); t.id = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; t.classList.add('on'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('on'), 2200);
+}
+const tipSeen = () => { try { return localStorage.getItem('circulus-tip-lab') === '1'; } catch (e) { return false; } };
+function labTipHTML() {
+  if (tipSeen()) return '';
+  return `<div class="labtip" id="labtip" role="note"><b>New to the lab?</b><ol><li>Change anything on the right; the previous loop stays as a dashed ghost.</li><li><b>Build patient</b> turns bedside numbers or a pasted echo report into a matching patient.</li><li><b>Treat and compare</b> tries treatments side by side.</li><li>Switch the view to <b>Circulation</b> to see the whole circuit. <b>Undo</b> (Ctrl/⌘+Z) steps back.</li></ol><button type="button" class="tg sm" id="tipok">Got it</button></div>`;
 }
 
 // ---------- patient builder and treatment comparison
@@ -3155,6 +3224,7 @@ const BCLEAR = { dobu: 0, milr: 0, ntg: 0, snp: 0, ne: 0, bb: 0, ino: 0, epi: 0,
   tCVP: 0, tCI: 0, tMAP: 0, tSI: 0, tEF: 0, tMVO2: 0 };
 let buildJob = 0;
 function buildPatient() {
+  recordUndo();
   const v = S.bv, st = $('#bpstat'), job = ++buildJob, S0 = S;
   const has = k => v[k] !== '' && v[k] != null;
   const removed = Object.keys(BCLEAR).filter(k => !k.startsWith('t') && sim.p[k]).map(k => CTL[k] ? CTL[k][0] : k);
@@ -3247,7 +3317,7 @@ function renderStrat() {
     return `<tr class="${i ? '' : 'cur'}"><th scope="row">${esc(r.n)}${r.cls ? `<small>${esc(r.cls)}</small>` : ''}</th>${cells}<td>${i ? `<button class="tg sm" data-apply="${i - 1}">Apply</button>` : ''}</td></tr>`; }).join('')}</tbody></table></div>`;
 }
 function applyStrat(i) {
-  const [n, , a] = STRATS[i];
+  const [n, , a] = STRATS[i]; recordUndo();
   pinLoop('Before: ' + n);
   if (a.add) for (const k in a.add) setP(k, sim.p[k] + a.add[k]);
   if (a.set) for (const k in a.set) setP(k, a.set[k]);
@@ -3466,11 +3536,11 @@ const CM_PATHS = {
 const CM_CARDS = [
   ['lung', 'l', 3, 'Lungs', (b, sm) => [['PVR', fmt(b.PVR, 1) + ' WU', 'PVR'], ['SaO₂', fmt((sm && sm.p ? sm.p.SaO2 : 0.98) * 100) + '%', null]], 'pa'],
   ['pa', 'l', 25, 'Pulmonary artery', b => [['PA', `${fmt(b.PAS)}/${fmt(b.PAD)} (${fmt(b.mPAP)})`, 'PA']], 'pa'],
-  ['ven', 'l', 58, 'Veins → right heart', b => [['CVP', fmt(b.RAP) + ' mmHg', 'RAP'], ['Veins', cmVeinTxt(b.RAP), null], ['SvO₂', fmt(b.SvO2 * 100) + '%', 'SvO2']], 'ven'],
+  ['ven', 'l', 58, '', b => [['CVP', fmt(b.RAP) + ' mmHg', 'RAP'], ['SvO₂', fmt(b.SvO2 * 100) + '%', 'SvO2']], 'ven'],
   ['o2', 'l', 82, 'O₂ supply and use', b => [['DO₂', fmt(b.DO2) + ' mL/min', 'DO2'], ['VO₂', fmt(b.VO2) + ' mL/min', null]], 'ven'],
   ['pv', 'r', 25, 'Pulmonary veins → left heart', b => [['PCWP', fmt(b.LAP) + ' mmHg', 'LAP']], 'pv'],
   ['ao', 'r', 58, 'Aorta', b => [['BP', `${fmt(b.SBP)}/${fmt(b.DBP)}`, 'BP'], ['MAP', fmt(b.MAP) + ' mmHg', 'MAP']], 'sa'],
-  ['body', 'r', 80, 'Body (systemic vessels)', b => [['SVR', fmt(b.SVR) + ' dyn·s/cm⁵', 'SVR'], ['Arterioles', cmTone(b.SVR), null]], 'sa'],
+  ['body', 'r', 80, 'Body (systemic vessels)', b => [['SVR', fmt(b.SVR) + ' dyn·s/cm⁵', 'SVR']], 'sa'],
 ];
 const CM_SCEN = ['Normal heart', 'Heart failure, reduced EF', 'Heart failure, preserved EF', 'Cardiac amyloidosis', 'Cardiogenic shock', 'Septic (vasodilatory) shock', 'Cardiac tamponade', 'Pulmonary hypertension', 'Severe aortic stenosis', 'Peak exercise'];
 const CM_RANGE = { PVR: [0, 2], PA: null, RAP: [2, 8], SvO2: [0.65, 0.8], DO2: [800, 1400], LAP: [6, 12], BP: null, MAP: [70, 105], SVR: [800, 1400], CI: [2.5, 4], HR: [55, 100], SV: [55, 100], EF: [0.52, 0.72] };
@@ -3483,8 +3553,8 @@ function cmBad(key, b) {
   return r && isFinite(v) && (v < r[0] || v > r[1]);
 }
 // rows always shown in the lab's Circulation view; the rest appear in Advanced mode
-const CM_LAB_ROWS = new Set(['CVP', 'Veins', 'PCWP', 'MAP', 'CI', 'HR', 'LVEF', 'Arterioles']);
-const CM_LAB_ADV_CARDS = new Set(['lung', 'pa', 'o2']);
+const CM_LAB_ROWS = new Set(['CVP', 'PCWP', 'MAP', 'CI', 'HR', 'LVEF']);
+const CM_LAB_ADV_CARDS = new Set(['lung', 'pa', 'o2', 'body']);
 function circModelHTML(lab) {
   const ix = x => 22 + x / 1024 * 56, iy = y => y / 1536 * 100;
   return `<figure class="cmfig"><div class="cm" id="cm" role="img" aria-label="Live circulation: heart, lungs and body with pressures and flows">
@@ -3494,10 +3564,10 @@ function circModelHTML(lab) {
       ${cmOverlaySVG()}
       ${Object.entries(CM_PATHS).map(([k, [d]]) => `<path id="cmp_${k}" d="${d}" fill="none" stroke="none"/><g id="cmd_${k}"></g>`).join('')}
     </svg></div>
-    ${CM_CARDS.map(([id, side, top, t, , ves]) => `<div class="cmc ${side} ${CM_PATHS[ves][1] === '#2f6fde' ? 'blue' : 'red'}${AO(lab && CM_LAB_ADV_CARDS.has(id))}" style="top:${top}%" data-cm="${id}"><span class="cmt">${esc(t)}</span><span class="cmv"></span></div>`).join('')}
+    ${CM_CARDS.map(([id, side, top, t, , ves]) => `<div class="cmc ${side} ${CM_PATHS[ves][1] === '#2f6fde' ? 'blue' : 'red'}${AO(lab && CM_LAB_ADV_CARDS.has(id))}" style="top:${top}%" data-cm="${id}">${t ? `<span class="cmt">${esc(t)}</span>` : ''}<span class="cmv"></span></div>`).join('')}
     <div class="cmc mid" style="left:${ix(260)}%;width:${ix(764) - ix(260)}%;top:${iy(1040)}%" data-cm="heart"><span class="cmt">Heart</span><span class="cmv"></span></div>
   </div>
-  ${lab ? `<p class="cmcap">The patient you are editing, drawn as a circulation. Blue is deoxygenated blood returning through the right heart to the lungs; red is oxygenated blood leaving the left heart. Dots move with cardiac output; the arterioles in the body narrow as SVR rises; the veins swell with CVP.</p></figure>` : `
+  ${lab ? `</figure>` : `
   <div class="cmscen" role="group" aria-label="Choose a patient">${CM_SCEN.map(n => `<button type="button" class="tg sm ${n === HOME_SCEN ? 'on' : ''}" data-scen="${esc(n)}">${esc(n.replace(' (vasodilatory)', ''))}</button>`).join('')}</div>
   <div class="cmsl"><label><span>Systemic vascular resistance <b id="cmsvrv"></b></span><input type="range" id="cmsvr" min="-1" max="1" step="0.01" value="0" aria-describedby="cmslh"></label>
   <label><span>Blood volume <b id="cmvolv"></b></span><input type="range" id="cmvol" min="-700" max="1500" step="25" value="0" aria-describedby="cmslh"></label>
@@ -3620,6 +3690,12 @@ function navOpen(on) {
   if (on) { const q = $('#q'); if (q) setTimeout(() => q.focus(), 50); }
 }
 document.addEventListener('click', e => { if (document.body.classList.contains('navopen') && !e.target.closest('#nav') && !e.target.closest('#menu')) navOpen(false); }, true);
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === 'z' && sec && sec.kind === 'lab') {
+    const tg2 = document.activeElement && document.activeElement.tagName; if (tg2 === 'TEXTAREA' || (tg2 === 'INPUT' && document.activeElement.type !== 'range')) return;
+    e.preventDefault(); labUndo();
+  }
+});
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('navopen')) { navOpen(false); const m = $('#menu'); if (m) m.focus(); } });
 document.addEventListener('click', e => {
   const t = e.target.closest('button, a'); if (!t) return;
@@ -3627,7 +3703,7 @@ document.addEventListener('click', e => {
   if (t.dataset.scen) { cmScenario(t.dataset.scen); return; }
   if (t.dataset.jump) { e.preventDefault(); const el = document.getElementById('m-' + t.dataset.jump); if (el) { el.scrollIntoView({ behavior: cmReduce() ? 'auto' : 'smooth', block: 'start' }); el.setAttribute('tabindex', '-1'); el.focus({ preventScroll: true }); } return; }
   if (t.dataset.lv) { S.labView.view = t.dataset.lv; const c = t.dataset.lv === 'circ';
-    $('#pvwrap').hidden = c; $('#circwrap').hidden = !c; document.querySelectorAll('[data-lv]').forEach(b => { const on = b.dataset.lv === t.dataset.lv; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    $('#pvwrap').hidden = c; $('#circwrap').hidden = !c; const li = $('#labimg'); if (li) li.hidden = c; document.querySelectorAll('[data-lv]').forEach(b => { const on = b.dataset.lv === t.dataset.lv; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
     if (c) { cmOff = {}; cmUpdate(sim, true); } S.dirty = true; return; }
   if (t.id === 'cmlab') { PENDING_PRESET = HOME_SCEN; return; }
   if (t.dataset.v !== undefined && t.dataset.k) { applyCtl(t.dataset.k, !!t.dataset.g, +t.dataset.v); updateRO(); return; }
@@ -3636,6 +3712,7 @@ document.addEventListener('click', e => {
   if (t.dataset.pvk) { const k = t.dataset.pvk; S.labView.open = S.labView.open === k ? null : k; syncPvann(); return; }
 
   if (t.dataset.unpin !== undefined) { S.pins.splice(+t.dataset.unpin, 1); renderPins(); return; }
+  if (t.dataset.reset) recordUndo();
   if (t.dataset.reset) { const k = t.dataset.reset; applyCtl(k, false, S.base[k]); return; }
   if (t.dataset.bmode) { S.bv.mode = t.dataset.bmode; deriveB(); renderLabTab(); return; }
   if (t.dataset.bq !== undefined) { const q = BQUICK[+t.dataset.bq][1]; BOPT.forEach(k => S.bv[k] = ''); Object.assign(S.bv, q); S.echo = null; S.echoSet = null; S.echoInfo = null; S.bv.SVe = null; S.bpnote = ''; if (S.bv.mode === 'MAP') S.bv.mode = 'SVR'; deriveB(); renderLabTab(); return; }
@@ -3643,7 +3720,11 @@ document.addEventListener('click', e => {
   if (t.id === 'bppaste') { pasteBedside(); return; }
   if (t.id === 'bpcompare') { compareStrats(); return; }
   if (t.dataset.apply !== undefined) { applyStrat(+t.dataset.apply); return; }
-  if (t.id === 'labreset') { pinLoop('Before reset'); loadLabPreset(S.presetName); return; }
+  if (t.id === 'labreset') { recordUndo(); pinLoop('Before reset'); loadLabPreset(S.presetName); return; }
+  if (t.id === 'labundo') { labUndo(); return; }
+  if (t.id === 'labshare') { copyShare(); return; }
+  if (t.id === 'labimg') { saveLoopImage(); return; }
+  if (t.id === 'tipok') { try { localStorage.setItem('circulus-tip-lab', '1'); } catch (e2) {} const tp = $('#labtip'); if (tp) tp.remove(); return; }
   if (t.dataset.a) { ACT[t.dataset.a][1](sim); return; }
   if (t.dataset.t !== undefined && sec) {
     const tr = sec.tries[+t.dataset.t];
@@ -3683,7 +3764,7 @@ document.addEventListener('click', e => {
   if (t.id === 'navclose') { navOpen(false); return; }
   if (t.closest('#nav') && t.tagName === 'A') document.body.classList.remove('navopen');
 });
-document.addEventListener('change', e => { if (e.target.id === 'labpreset') { pinLoop('Preset: ' + S.presetName); loadLabPreset(e.target.value); return; } if (e.target.id === 'speed') speed = +e.target.value; if (e.target.id === 'navsel') location.hash = e.target.value; });
+document.addEventListener('change', e => { if (e.target.id === 'labpreset') { recordUndo(); pinLoop('Preset: ' + S.presetName); loadLabPreset(e.target.value); return; } if (e.target.id === 'speed') speed = +e.target.value; if (e.target.id === 'navsel') location.hash = e.target.value; });
 document.addEventListener('keydown', e => { if (e.key === ' ' && e.target === document.body) { e.preventDefault(); $('#play').click(); } });
 $('#q').addEventListener('input', e => { const q = e.target.value.toLowerCase(); document.querySelectorAll('#nav a').forEach(a => a.hidden = q && !a.textContent.toLowerCase().includes(q)); document.querySelectorAll('#nav .ng').forEach(g => g.hidden = q && ![...g.querySelectorAll('a')].some(a => !a.hidden)); });
 
