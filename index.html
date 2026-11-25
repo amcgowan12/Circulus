@@ -332,6 +332,17 @@ main{padding:22px clamp(14px,2.4vw,34px) 60px}
 .pvann .tg.sm{min-height:30px;font-size:12.5px;padding:2px 10px}
 .pvann .muted{font-size:12px}
 
+/* Basic / Advanced mode */
+body:not(.adv) .adv-only{display:none!important}
+body.adv .basic-only{display:none!important}
+.mode{display:inline-flex;border:1px solid rgba(255,255,255,.35);border-radius:9px;overflow:hidden;background:rgba(255,255,255,.08)}
+.mode button{background:transparent;border:0;color:#fff;min-height:38px;padding:0 12px;font:600 14px "Red Hat Text",system-ui,sans-serif;cursor:pointer;border-radius:0}
+.mode button.on{background:#fff;color:var(--brand,#8a1023)}
+.mode button:focus-visible{outline:2px solid #fff;outline-offset:-3px}
+.moreadv{margin-top:10px}
+.linkbtn{background:none;border:0;padding:0;color:var(--lv,#b3132f);font:inherit;font-weight:600;text-decoration:underline;cursor:pointer}
+.vbar .v[title],.mini .m[title]{cursor:help}
+
 </style>
 </head>
 <body>
@@ -339,7 +350,8 @@ main{padding:22px clamp(14px,2.4vw,34px) 60px}
   <button id="menu" class="tbtn-menu" aria-label="Open lesson list" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;min-height:40px;padding:0 12px">Lessons</button>
   <a class="brand" href="#"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 6c-7 0-12 6-12 14s5 14 12 14" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/><path d="M20 34c7 0 12-6 12-14S27 6 20 6" fill="none" stroke="#ffb3be" stroke-width="3.2" stroke-linecap="round"/><path d="M8 20h6l3-6 4 12 3-6h8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg>Circulus<small>cardiovascular physiology lab</small></a>
   <div class="tb">
-    <button id="play" aria-pressed="false">Pause</button>
+    <div class="mode" role="group" aria-label="Detail level" title="Basic shows the core numbers; Advanced reveals every metric and setting"><button type="button" data-mode="basic" aria-pressed="true" class="on">Basic</button><button type="button" data-mode="adv" aria-pressed="false">Advanced</button></div>
+    <button id="play" aria-pressed="false" title="Pause or resume (Space)">Pause</button>
     <select id="speed" aria-label="Simulation speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
     <button id="settle" title="Run 10 simulated seconds instantly">Skip to steady state</button>
     <button id="resetsec">Reset lesson</button>
@@ -2007,6 +2019,33 @@ const ACT = {
 
 // ---------- state
 let sim = null, sec = null, S = {}, G = Object.assign({}, GDEF);
+// Basic / Advanced display mode: advanced elements carry class "adv-only"; the body class shows or hides them without re-rendering
+let ADV = false; try { ADV = localStorage.getItem('circulus-mode') === 'adv'; } catch (e) {}
+const AO = on => on ? ' adv-only' : '';
+// plain-language definitions shown on hover (title) for every headline number
+const DEF = {
+  BP: 'Systolic/diastolic arterial pressure. Normal about 90–140 / 60–90 mmHg.', MAP: 'Mean arterial pressure ≈ DBP + ⅓ pulse pressure. Normal 70–105; organ perfusion usually needs ≥ 65.',
+  HR: 'Heart rate (beats per minute).', CO: 'Cardiac output = stroke volume × heart rate. Normal 4–8 L/min.', CI: 'Cardiac index = CO ÷ body surface area (1.9 m² here). Normal 2.5–4.0; < 2.2 suggests low output.',
+  RAP: 'Central venous pressure (mean right atrial pressure). Normal 2–8 mmHg.', LAP: 'Pulmonary capillary wedge pressure (mean left atrial pressure). Normal 6–12 mmHg.',
+  PA: 'Pulmonary artery systolic/diastolic (mean). Mean > 20 mmHg is pulmonary hypertension.', SVR: 'Systemic vascular resistance = 80 × (MAP − CVP) ÷ CO. Normal 800–1200 dyn·s/cm⁵.',
+  SvO2: 'Mixed venous O₂ saturation: falls when delivery is low for demand. Normal 65–75%.',
+  SV: 'Stroke volume = EDV − ESV. Normal 55–100 mL.', SI: 'Stroke index = SV ÷ BSA. Normal 33–47 mL/m².', EF: 'Ejection fraction = SV ÷ EDV. Normal 52–72%.',
+  MVO2: 'Myocardial O₂ consumption, from pressure–volume area, contractility and heart rate.', LVEDV: 'LV end-diastolic volume (preload).', LVESV: 'LV end-systolic volume.',
+  LVEDP: 'LV end-diastolic pressure. Normal ≤ 12 mmHg.', ESP: 'End-systolic pressure, where the loop meets the ESPVR.', EaEes: 'Ventricular–arterial coupling: arterial elastance ÷ ventricular elastance. Normal 0.5–1.1.',
+  SW: 'Stroke work: the area inside the PV loop.'
+};
+const ADV_VITALS = { PA: 1, SVR: 1, SvO2: 1 }, ADV_MINI = { SI: 1, MVO2: 1, ESP: 1, EaEes: 1, SW: 1 }, ADV_MARK = { SW: 1, EA: 1 }, ADV_SCOL = { SVR: 1, SV: 1, MVO2: 1 };
+// controls shown in Basic mode; everything else in the lab tabs is Advanced
+const BASIC_CTL = new Set(['HR', 'rhythm', 'LV_Ees', 'LV_V0', 'LV_k', 'LV_tau', 'RV_Ees', 'dV', 'Ras', 'Rap', 'ne', 'epi', 'vaso', 'phenyl', 'dopa', 'dobu', 'milr', 'mido', 'acei', 'arni', 'snp', 'ntg', 'bb']);
+function setMode(adv) {
+  ADV = !!adv; try { localStorage.setItem('circulus-mode', ADV ? 'adv' : 'basic'); } catch (e) {}
+  document.body.classList.toggle('adv', ADV);
+  document.querySelectorAll('[data-mode]').forEach(b => { const on = (b.dataset.mode === 'adv') === ADV; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+  if (!ADV && S.labView && ADV_MARK[S.labView.open]) S.labView.open = null;
+  if (!ADV && S.labView && S.labView.pva) S.labView.pva = 0;
+  if (!ADV && sec && sec.kind === 'lab' && LAB_TABS[S.tab] && LAB_TABS[S.tab][2]) { S.tab = 0; renderLabTab(); }
+  S.dirty = true;
+}
 let running = true, speed = 1, lastT = 0, roT = 0, curveT = null;
 const PALETTE = ['#8b93a1', '#b77b2b', '#2f7d6b', '#6f62b8', '#a0526a', '#4d7fb5'];
 
@@ -2096,6 +2135,7 @@ function pvAnnotate(c, f, b, e, s, W, H) {
     SW: [f.x(b.ESV + 0.62 * b.SV), f.y(b.ESP * 0.42), 'Stroke work', 'in'],
     EA: [f.x(b.ESV + 0.22 * b.SV), f.y(b.ESP * 0.78), 'Ea', 'in'],
   };
+  if (!ADV) for (const k in ADV_MARK) delete M[k];
   S.pvMarks = Object.entries(M).map(([k, m]) => ({ k, x: m[0], y: m[1] }));
   const open = S.labView.open;
   c.font = '600 11px "Red Hat Text", system-ui, sans-serif';
@@ -2131,7 +2171,7 @@ function pvAnnotate(c, f, b, e, s, W, H) {
 }
 function pvannHTML() {
   const v = S.labView; if (!v.ann) return '';
-  return `<span class="tl">Loop landmarks</span>${Object.entries(PVMK).map(([k, [t]]) => `<button type="button" class="tg sm ${v.open === k ? 'on' : ''}" data-pvk="${k}" aria-pressed="${v.open === k}">${esc(t.split(' (')[0])}</button>`).join('')}<span class="muted">Click a + on the loop or a button to expand.</span>`;
+  return `<span class="tl">Loop landmarks</span>${Object.entries(PVMK).map(([k, [t]]) => `<button type="button" class="tg sm ${v.open === k ? 'on' : ''}${AO(ADV_MARK[k])}" data-pvk="${k}" aria-pressed="${v.open === k}">${esc(t.split(' (')[0])}</button>`).join('')}<span class="muted">Click a + on the loop or a button to expand.</span>`;
 }
 function syncPvann() { const el = $('#pvann'); if (el) { const h = pvannHTML(); el.hidden = !h; if (el.innerHTML !== h) el.innerHTML = h; } }
 
@@ -2676,12 +2716,12 @@ function labBar() {
   const v = S.labView, tg = (k, n) => `<button class="tg ${v[k] ? 'on' : ''}" data-lt="${k}" aria-pressed="${!!v[k]}">${n}</button>`;
   return `<div class="labbar"><label class="lp">Start from <select id="labpreset">${window.LAB_PRESETS.map(p => `<option>${esc(p[0])}</option>`).join('')}</select></label>
   <span class="tgs"><span class="tl">Loops</span>${tg('LV', 'LV')}${tg('RV', 'RV')}${tg('LA', 'LA')}${tg('RA', 'RA')}</span>
-  <span class="tgs"><span class="tl">Lines</span>${tg('espvr', 'ESPVR')}${tg('edpvr', 'EDPVR')}${tg('ea', 'Ea')}${tg('pva', 'PVA shading')}${tg('ann', 'Landmarks')}</span>
+  <span class="tgs"><span class="tl">Lines</span>${tg('espvr', 'ESPVR')}${tg('edpvr', 'EDPVR')}${tg('ea', 'Ea')}<span class="adv-only">${tg('pva', 'PVA shading')}</span>${tg('ann', 'Landmarks')}</span>
   <span class="tgs">${tg('ghost', 'Ghost previous loop')}<button class="tg" id="labreset">Reset all</button></span></div>`;
 }
 function labAside() {
   return `<aside class="ctrl lab" aria-label="Edit variables">${labBar()}<h2>Edit variables</h2><p class="help">Drag a slider or type an exact value and press Enter.</p>
-  <div class="seg tabs" role="tablist">${LAB_TABS.map((t, i) => `<button type="button" data-tab="${i}" class="${i === S.tab ? 'on' : ''}">${esc(t[0])}</button>`).join('')}</div>
+  <div class="seg tabs" role="tablist">${LAB_TABS.map((t, i) => `<button type="button" data-tab="${i}" class="${i === S.tab ? 'on' : ''}${AO(t[2])}">${esc(t[0])}</button>`).join('')}</div>
   <div id="tabbody"></div></aside>`;
 }
 function legend(p) {
@@ -2709,7 +2749,7 @@ function tgtText(s) {
 const VITALS = [['BP', 'Arterial pressure', '#ff6b6b'], ['MAP', 'MAP', '#ff6b6b'], ['HR', 'Heart rate', '#4ade80'], ['CO', 'Cardiac output', '#f1f3f5'], ['CI', 'Cardiac index', '#f1f3f5'], ['RAP', 'CVP', '#60b8ff'], ['LAP', 'PCWP', '#ffb366'], ['PA', 'PA pressure', '#ffd54a'], ['SVR', 'SVR', '#f1f3f5'], ['SvO2', 'SvO₂', '#6ae6f2']];
 const BPN = { SBP: [90, 140], DBP: [60, 90] };
 function vbarHTML() {
-  return `<div class="vbar" id="vbar" role="group" aria-label="Vital signs">${VITALS.map(([k, l, col]) => `<div class="v" style="--vc:${col}"><span class="vl">${esc(l)}</span><span class="vv" data-v="${k}">–</span><span class="vu">${esc(RO[k][1])}</span></div>`).join('')}</div>`;
+  return `<div class="vbar" id="vbar" role="group" aria-label="Vital signs">${VITALS.map(([k, l, col]) => `<div class="v${AO(ADV_VITALS[k])}" style="--vc:${col}" title="${esc(DEF[k] || '')}"><span class="vl">${esc(l)}</span><span class="vv" data-v="${k}">–</span><span class="vu">${esc(RO[k][1])}</span></div>`).join('')}</div>`;
 }
 function updateVbar() {
   const el = $('#vbar'), b = AB(); if (!el || !b) return;
@@ -2728,7 +2768,7 @@ function updateMini() {
   const el = $('#mini'), b = AB(); if (!el || !b) return;
   const tl = $('#tgtline'); if (tl) { const t = tgtText(sim); tl.hidden = t === 'Off'; const h = '<b>Targets:</b> ' + esc(t); if (tl.innerHTML !== h) tl.innerHTML = h; tl.classList.toggle('bad', t.includes('out of reach')); }
   el.innerHTML = MINI.map(k => { const r = RO[k], v = r[4] ? r[4](b, sim) : b[k], bad = r[3] && typeof v === 'number' && isFinite(v) && (v < r[3][0] || v > r[3][1]);
-    return `<div class="m ${bad ? 'bad' : ''}"><span>${esc(MINIL[k])}</span><b>${esc(typeof v === 'string' ? v : fmt(v, r[2]))}</b><small>${esc(r[1])}</small></div>`; }).join('');
+    return `<div class="m ${bad ? 'bad' : ''}${AO(ADV_MINI[k])}" title="${esc(DEF[k] || '')}"><span>${esc(MINIL[k])}</span><b>${esc(typeof v === 'string' ? v : fmt(v, r[2]))}</b><small>${esc(r[1])}</small></div>`; }).join('');
 }
 function updateRO(force) {
   if (sec && sec.kind === 'lab') { updateMini(); syncPvann(); }
@@ -2775,11 +2815,14 @@ function newCase(silent) {
 function scoreText() { const s = S.score || [0, 0]; return s[1] ? `${s[0]} of ${s[1]} correct` : ''; }
 
 // ---------- PV loop lab
-const LAB_TABS = [['Build patient and treat', 'build'], ['Heart', 1], ['Targets: LVEF, MVO₂, SI, CI', 0], ['Circulation', 2], ['Inotropes and pressors (incl. midodrine)', 5], ['Valves and shunts', 3], ['Pericardium and breathing', 4], ['Afterload reduction (ACEi/ARB/ARNI) and other drugs', 6], ['Devices and O₂', 7]];
+const LAB_TABS = [['Build patient and treat', 'build'], ['Heart', 1], ['Targets: LVEF, MVO₂, SI, CI', 0, 1], ['Circulation', 2], ['Inotropes and pressors (incl. midodrine)', 5], ['Valves and shunts', 3, 1], ['Pericardium and breathing', 4, 1], ['Afterload reduction (ACEi/ARB/ARNI) and other drugs', 6], ['Devices and O₂', 7, 1]];
 function renderLabTab() {
   const el = $('#tabbody'); if (!el) return;
   const g = LAB_TABS[S.tab][1];
-  el.innerHTML = g === 'build' ? buildHTML() : GROUPS[g][1].map(k => ctlHTML(k)).join('');
+  if (g === 'build') el.innerHTML = buildHTML();
+  else { const ks = GROUPS[g][1], nAdv = ks.filter(k => !BASIC_CTL.has(k)).length;
+    el.innerHTML = ks.map(k => BASIC_CTL.has(k) ? ctlHTML(k) : `<div class="adv-only">${ctlHTML(k)}</div>`).join('') +
+      (nAdv ? `<p class="help basic-only moreadv">${nAdv} more setting${nAdv > 1 ? 's' : ''} in this tab. <button type="button" class="linkbtn" data-mode="adv">Show Advanced</button></p>` : ''); }
   document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', +b.dataset.tab === S.tab));
 }
 function loadLabPreset(name) {
@@ -3014,7 +3057,7 @@ function buildHTML() {
   return `<div class="build">
   <div class="bpaste"><label for="bptxt" class="lbl">Paste values or an echo report</label><textarea id="bptxt" rows="3" placeholder="Paste a TTE report, cath report, monitor values or a note, e.g. BP 98/62, HR 104, RA 14, CO 3.6, SVR 1450, LVEF 20%">${esc(S.bptxt || '')}</textarea><button type="button" class="tg" id="bppaste">Fill boxes from text</button>${S.bpnote ? `<p class="bstat">${S.bpnote}</p>` : ''}</div>
   <div class="seg" role="group" aria-label="Calculated value"><span class="lbl">Calculate</span><button type="button" data-bmode="SVR" class="${v.mode === 'SVR' ? 'on' : ''}">SVR</button><button type="button" data-bmode="MAP" class="${v.mode === 'MAP' ? 'on' : ''}">MAP</button></div>
-  <div class="bgrid">${BF.map(([k, l, u, mn, mx, d, opt]) => { const c = bCalc(k); return `<label class="bf ${c ? 'calc' : ''}" data-bf="${k}"><span>${esc(l)}<em class="bfn">${c ? ' (calculated)' : opt ? ' (optional)' : ''}</em></span><span class="nb"><input type="number" class="bpin" data-b="${k}" min="${mn}" max="${mx}" step="any" value="${v[k] === '' || v[k] == null ? '' : +(+v[k]).toFixed(d)}" ${opt ? 'placeholder="auto"' : ''} ${c ? 'readonly tabindex="-1"' : ''}><small>${esc(u)}</small></span></label>`; }).join('')}</div>
+  <div class="bgrid">${BF.map(([k, l, u, mn, mx, d, opt]) => { const c = bCalc(k), ao = ['PCWP', 'PASP', 'TAPSE', 'MVO2'].includes(k) && (v[k] === '' || v[k] == null); return `<label class="bf ${c ? 'calc' : ''}${AO(ao)}" data-bf="${k}"><span>${esc(l)}<em class="bfn">${c ? ' (calculated)' : opt ? ' (optional)' : ''}</em></span><span class="nb"><input type="number" class="bpin" data-b="${k}" min="${mn}" max="${mx}" step="any" value="${v[k] === '' || v[k] == null ? '' : +(+v[k]).toFixed(d)}" ${opt ? 'placeholder="auto"' : ''} ${c ? 'readonly tabindex="-1"' : ''}><small>${esc(u)}</small></span></label>`; }).join('')}</div>
   <div class="bq"><span class="lbl">Quick fill</span>${BQUICK.map((q, i) => `<button type="button" class="tg" data-bq="${i}">${esc(q[0])}</button>`).join('')}</div>
   <button class="act" id="bpbuild">Build this patient</button>
   <div class="bstat" id="bpstat">${S.bstat || ''}</div>
@@ -3075,7 +3118,7 @@ function buildPatient() {
     const miss = parts.filter(k => k !== 'HR' && Math.abs(got[k] - want(k)) > tol[k]);
     S.bstat = (miss.length ? '<b class="warn">Closest the model could get:</b> ' : '<b>Built.</b> ') +
       parts.map(k => `<span class="${miss.includes(k) ? 'warn' : ''}">${BLBL[k]} ${fmt(got[k], dec[k] || 0)}${k !== 'HR' && miss.includes(k) ? ` <span class="muted">(target ${fmt(want(k), dec[k] || 0)})</span>` : ''}</span>`).join(' · ') +
-      `<br><span class="muted">Fitted: LV Ees ${fmt(fitted.LV_Ees, 2)} mmHg/mL, LV V₀ ${fmt(fitted.LV_V0)} mL, LV stiffness ${fmt(fitted.LV_k, 3)}, τ ${fmt(fitted.LV_tau * 1000)} ms, RV Ees ${fmt(fitted.RV_Ees, 2)}, PVR ${fmt(fitted.Rap * 16.667, 1)} WU${dop.length ? `, LA Ees ${fmt(fitted.LA_Ees, 2)}, mitral inflow area ${fmt(fitted.mv_f, 1)} cm²` : ''}, volume ${fitted.dV >= 0 ? '+' : ''}${fmt(fitted.dV)} mL (${res.evals} model runs)</span>` +
+      `<br><span class="muted adv-only">Fitted: LV Ees ${fmt(fitted.LV_Ees, 2)} mmHg/mL, LV V₀ ${fmt(fitted.LV_V0)} mL, LV stiffness ${fmt(fitted.LV_k, 3)}, τ ${fmt(fitted.LV_tau * 1000)} ms, RV Ees ${fmt(fitted.RV_Ees, 2)}, PVR ${fmt(fitted.Rap * 16.667, 1)} WU${dop.length ? `, LA Ees ${fmt(fitted.LA_Ees, 2)}, mitral inflow area ${fmt(fitted.mv_f, 1)} cm²` : ''}, volume ${fitted.dV >= 0 ? '+' : ''}${fmt(fitted.dV)} mL (${res.evals} model runs)</span>` +
       `<br><span class="muted">Started from ${S.echo ? 'a normal heart with the echo findings' : 'the loaded heart'}, off all treatment${removed.length ? ` (switched off: ${esc(removed.join(', '))})` : ''}. Add drugs or the reflex afterwards to see their effect.</span>` +
       (miss.length ? '<br><span class="muted">This combination is hard for the model to reproduce exactly. Check the values, or leave one of the optional boxes blank.</span>' : '') +
       (S.echo ? echoCompareHTML(S.echo, m) : '');
@@ -3113,10 +3156,10 @@ function renderStrat() {
   if (!S.strat) { el.hidden = true; return; }
   el.hidden = false;
   const b0 = S.strat[0].b, dist = (v, n) => !n ? 0 : v < n[0] ? n[0] - v : v > n[1] ? v - n[1] : 0;
-  el.innerHTML = `<p class="fxh">Treatment comparison <span>Each row is the steady state after one treatment, starting from the current patient. Green: moved toward normal; red: moved away.</span></p><div class="scroll"><table class="stt"><thead><tr><th scope="col">Treatment</th>${SCOLS.map(c => `<th scope="col">${esc(c[1])}</th>`).join('')}<th></th></tr></thead><tbody>${S.strat.map((r, i) => {
-    const cells = SCOLS.map(([k, l, d, n]) => { if (!r.b) return '<td class="muted">…</td>'; const v = r.b[k]; if (!i || !b0) return `<td>${fmt(v, d)}</td>`;
+  el.innerHTML = `<p class="fxh">Treatment comparison <span>Each row is the steady state after one treatment, starting from the current patient. Green: moved toward normal; red: moved away.</span></p><div class="scroll"><table class="stt"><thead><tr><th scope="col">Treatment</th>${SCOLS.map(c => `<th scope="col" class="${AO(ADV_SCOL[c[0]]).trim()}">${esc(c[1])}</th>`).join('')}<th></th></tr></thead><tbody>${S.strat.map((r, i) => {
+    const cells = SCOLS.map(([k, l, d, n]) => { const ao = AO(ADV_SCOL[k]); if (!r.b) return `<td class="muted${ao}">…</td>`; const v = r.b[k]; if (!i || !b0) return `<td class="${ao.trim()}">${fmt(v, d)}</td>`;
       const dv = v - b0[k], tiny = Math.abs(dv) < (d ? 0.05 : 1), better = dist(v, n) < dist(b0[k], n) - 1e-6, worse = dist(v, n) > dist(b0[k], n) + 1e-6;
-      return `<td class="${tiny ? '' : better ? 'good' : worse ? 'bad' : ''}">${fmt(v, d)}${tiny ? '' : dv > 0 ? ' ▲' : ' ▼'}</td>`; }).join('');
+      return `<td class="${tiny ? '' : better ? 'good' : worse ? 'bad' : ''}${ao}">${fmt(v, d)}${tiny ? '' : dv > 0 ? ' ▲' : ' ▼'}</td>`; }).join('');
     return `<tr class="${i ? '' : 'cur'}"><th scope="row">${esc(r.n)}${r.cls ? `<small>${esc(r.cls)}</small>` : ''}</th>${cells}<td>${i ? `<button class="tg sm" data-apply="${i - 1}">Apply</button>` : ''}</td></tr>`; }).join('')}</tbody></table></div>`;
 }
 function applyStrat(i) {
@@ -3171,6 +3214,7 @@ document.addEventListener('click', e => { const k = pvHit(e); if (k === undefine
 document.addEventListener('mousemove', e => { if (e.target && e.target.id === 'cv0') e.target.style.cursor = pvHit(e) ? 'pointer' : ''; });
 document.addEventListener('click', e => {
   const t = e.target.closest('button, a'); if (!t) return;
+  if (t.dataset.mode) { setMode(t.dataset.mode === 'adv'); return; }
   if (t.dataset.v !== undefined && t.dataset.k) { applyCtl(t.dataset.k, !!t.dataset.g, +t.dataset.v); updateRO(); return; }
   if (t.dataset.tab !== undefined) { S.tab = +t.dataset.tab; renderLabTab(); return; }
   if (t.dataset.lt) { const k = t.dataset.lt; S.labView[k] = !S.labView[k]; t.classList.toggle('on', !!S.labView[k]); t.setAttribute('aria-pressed', !!S.labView[k]); if (k === 'ann') { S.labView.open = null; syncPvann(); } return; }
@@ -3246,6 +3290,7 @@ function frameLoop(ts) {
 }
 window.addEventListener('resize', () => { S.dirty = true; });
 window.addEventListener('hashchange', () => render(location.hash.slice(1)));
+setMode(ADV);
 render(location.hash.slice(1));
 requestAnimationFrame(frameLoop);
 }
