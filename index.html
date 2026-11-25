@@ -385,11 +385,21 @@ body.adv .basic-only{display:none!important}
 .trg .lbl{display:block;font-size:12.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px}
 .trg .bapply{margin:0}
 
+/* lesson list collapsed by default at every width; the Lessons button opens it as a drawer */
+.app{grid-template-columns:minmax(0,1fr)}
+#nav{position:fixed;top:58px;left:0;bottom:0;width:min(320px,88vw);z-index:30;transform:translateX(-105%);transition:transform .2s;height:auto;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+body.navopen #nav{transform:none}
+#menu{display:inline-flex;align-items:center}
+#navclose{display:block!important}
+@media (max-width:600px){#nav{top:0;z-index:40}}
+@media (max-width:1399px){body.labmode #nav{top:0;z-index:40}}
+body.navopen main{filter:brightness(.92)}
+
 </style>
 </head>
 <body>
 <header class="top">
-  <button id="menu" class="tbtn-menu" aria-label="Open lesson list" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;min-height:40px;padding:0 12px">Lessons</button>
+  <button id="menu" class="tbtn-menu" aria-label="Open lesson list" aria-expanded="false" aria-controls="nav" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;min-height:40px;padding:0 12px">Lessons</button>
   <a class="brand" href="#"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 6c-7 0-12 6-12 14s5 14 12 14" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/><path d="M20 34c7 0 12-6 12-14S27 6 20 6" fill="none" stroke="#ffb3be" stroke-width="3.2" stroke-linecap="round"/><path d="M8 20h6l3-6 4 12 3-6h8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg>Circulus<small>cardiovascular physiology lab</small></a>
   <div class="tb">
     <div class="mode" role="group" aria-label="Detail level" title="Basic shows the core numbers; Advanced reveals every metric and setting"><button type="button" data-mode="basic" aria-pressed="true" class="on">Basic</button><button type="button" data-mode="adv" aria-pressed="false">Advanced</button></div>
@@ -2728,7 +2738,7 @@ function render(id) {
   const acts = (sec.acts || []).map(a => `<button class="act" data-a="${a}">${esc(ACT[a][0])}</button>`).join('');
   const all = sec.kind === 'gas' || sec.kind === 'student' ? '' : `<details class="all"><summary>All model parameters</summary>${GROUPS.map(g => `<h4>${esc(g[0].replace('Model parameters: ', ''))}</h4>` + g[1].map(k => ctlHTML(k)).join('')).join('')}</details>`;
   main.innerHTML = `<article class="lesson">
-  <header class="lhead"><p class="crumb">${esc(grp ? grp[0] : '')}</p><h1>${esc(sec.t)}</h1>${sec.lede ? `<p class="lede">${sec.lede}</p>` : ''}</header>
+  ${sec.kind === 'lab' ? '' : `<header class="lhead"><p class="crumb">${esc(grp ? grp[0] : '')}</p><h1>${esc(sec.t)}</h1>${sec.lede ? `<p class="lede">${sec.lede}</p>` : ''}</header>`}
   ${sec.kind === 'student' ? studentHTML() : ''}
   ${sec.kind === 'lab' ? `<div class="work labw">${vbarHTML()}<div class="lableft"><div class="changes" id="changes" aria-live="polite"></div><div class="seg viewsw" role="group" aria-label="Main view"><span class="lbl">View</span><button type="button" data-lv="pv" class="on" aria-pressed="true">PV loop</button><button type="button" data-lv="circ" aria-pressed="false">Circulation</button></div><div id="pvwrap"><div class="pins"></div>${panelHTML(sec.panels[0], 0)}<div class="pvann" id="pvann" role="group" aria-label="PV loop landmarks"></div></div><div id="circwrap" hidden>${circModelHTML(true)}</div><div class="mini" id="mini" aria-live="off"></div><p class="tgtline" id="tgtline" hidden></p><div class="drugfx" id="drugfx"></div><div class="drugfx strat" id="strat" hidden></div></div>${labAside()}</div><div class="plots below">${sec.panels.slice(1).map((p, i) => panelHTML(p, i + 1)).join('')}</div>` : ''}
   ${!sec.kind && !sec.panels.some(p => p.type === 'monitor') ? vbarHTML() : ''}
@@ -3406,6 +3416,14 @@ const pvHit = e => { const t = e.target; if (!t || t.id !== 'cv0' || !sec || sec
   S.pvMarks.forEach(m => { const d = Math.hypot(m.x - x, m.y - y); if (d < bd) { bd = d; best = m.k; } }); return best; };
 document.addEventListener('click', e => { const k = pvHit(e); if (k === undefined) return; S.labView.open = k && S.labView.open !== k ? k : null; syncPvann(); });
 document.addEventListener('mousemove', e => { if (e.target && e.target.id === 'cv0') e.target.style.cursor = pvHit(e) ? 'pointer' : ''; });
+// lesson list: a drawer at every screen size, closed by default
+function navOpen(on) {
+  document.body.classList.toggle('navopen', on);
+  const m = $('#menu'); if (m) m.setAttribute('aria-expanded', on);
+  if (on) { const q = $('#q'); if (q) setTimeout(() => q.focus(), 50); }
+}
+document.addEventListener('click', e => { if (document.body.classList.contains('navopen') && !e.target.closest('#nav') && !e.target.closest('#menu')) navOpen(false); }, true);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('navopen')) { navOpen(false); const m = $('#menu'); if (m) m.focus(); } });
 document.addEventListener('click', e => {
   const t = e.target.closest('button, a'); if (!t) return;
   if (t.dataset.mode) { setMode(t.dataset.mode === 'adv'); return; }
@@ -3463,8 +3481,8 @@ document.addEventListener('click', e => {
   if (t.id === 'play') { running = !running; t.textContent = running ? 'Pause' : 'Play'; t.setAttribute('aria-pressed', !running); return; }
   if (t.id === 'settle' && sim) { sim.run(10); return; }
   if (t.id === 'resetsec' && sec) { render(sec.id); return; }
-  if (t.id === 'menu') { document.body.classList.toggle('navopen'); return; }
-  if (t.id === 'navclose') { document.body.classList.remove('navopen'); return; }
+  if (t.id === 'menu') { navOpen(!document.body.classList.contains('navopen')); return; }
+  if (t.id === 'navclose') { navOpen(false); return; }
   if (t.closest('#nav') && t.tagName === 'A') document.body.classList.remove('navopen');
 });
 document.addEventListener('change', e => { if (e.target.id === 'labpreset') { pinLoop('Preset: ' + S.presetName); loadLabPreset(e.target.value); return; } if (e.target.id === 'speed') speed = +e.target.value; if (e.target.id === 'navsel') location.hash = e.target.value; });
