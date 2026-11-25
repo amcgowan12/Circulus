@@ -377,6 +377,9 @@ body.adv .basic-only{display:none!important}
 .cmsl label b{font-weight:600;color:var(--muted);margin-left:4px}
 .cmsl .help{grid-column:1/-1;margin:0}
 @media (max-width:560px){.cmsl{grid-template-columns:1fr}}
+.viewsw{margin:0 0 10px}
+#circwrap .cmfig{padding:10px}
+.cmcap{font-size:13px;color:var(--muted);margin:8px 0 0}
 
 </style>
 </head>
@@ -2717,13 +2720,13 @@ function render(id) {
   const panelHTML = (p, i) => `<figure class="panel ${p.wide ? 'wide' : ''} ${p.type === 'monitor' ? 'mon' : ''}" style="--h:${p.h || 300}px"><figcaption>${esc(p.title || '')}${legend(p)}</figcaption><div class="fig"><canvas id="cv${i}" role="img" aria-label="${esc(p.title || p.type)}"></canvas></div></figure>`;
   const panels = sec.panels.map(panelHTML).join('');
   const ctls = (sec.ctrls || []).map(k => ctlHTML(k)).join('') + (sec.gctrls || []).map(k => ctlHTML(k, true)).join('');
-  if (sec.kind === 'lab') { S.labView = { LV: 1, RV: 0, LA: 0, RA: 0, espvr: 1, edpvr: 1, ea: 1, pva: 0, ghost: 1, ann: 1, open: null }; S.tab = 0; S.presetName = window.LAB_PRESETS[0][0]; S.base = Object.assign({}, DEFAULTS, window.LAB_PRESETS[0][1]); }
+  if (sec.kind === 'lab') { S.labView = { LV: 1, RV: 0, LA: 0, RA: 0, espvr: 1, edpvr: 1, ea: 1, pva: 0, ghost: 1, ann: 1, open: null, view: 'pv' }; S.tab = 0; S.presetName = window.LAB_PRESETS[0][0]; S.base = Object.assign({}, DEFAULTS, window.LAB_PRESETS[0][1]); }
   const acts = (sec.acts || []).map(a => `<button class="act" data-a="${a}">${esc(ACT[a][0])}</button>`).join('');
   const all = sec.kind === 'gas' || sec.kind === 'student' ? '' : `<details class="all"><summary>All model parameters</summary>${GROUPS.map(g => `<h4>${esc(g[0].replace('Model parameters: ', ''))}</h4>` + g[1].map(k => ctlHTML(k)).join('')).join('')}</details>`;
   main.innerHTML = `<article class="lesson">
   <header class="lhead"><p class="crumb">${esc(grp ? grp[0] : '')}</p><h1>${esc(sec.t)}</h1>${sec.lede ? `<p class="lede">${sec.lede}</p>` : ''}</header>
   ${sec.kind === 'student' ? studentHTML() : ''}
-  ${sec.kind === 'lab' ? `<div class="work labw">${vbarHTML()}<div class="lableft"><div class="changes" id="changes" aria-live="polite"></div><div class="pins"></div>${panelHTML(sec.panels[0], 0)}<div class="pvann" id="pvann" role="group" aria-label="PV loop landmarks"></div><div class="mini" id="mini" aria-live="off"></div><p class="tgtline" id="tgtline" hidden></p><div class="drugfx" id="drugfx"></div><div class="drugfx strat" id="strat" hidden></div></div>${labAside()}</div><div class="plots below">${sec.panels.slice(1).map((p, i) => panelHTML(p, i + 1)).join('')}</div>` : ''}
+  ${sec.kind === 'lab' ? `<div class="work labw">${vbarHTML()}<div class="lableft"><div class="changes" id="changes" aria-live="polite"></div><div class="seg viewsw" role="group" aria-label="Main view"><span class="lbl">View</span><button type="button" data-lv="pv" class="on" aria-pressed="true">PV loop</button><button type="button" data-lv="circ" aria-pressed="false">Circulation</button></div><div id="pvwrap"><div class="pins"></div>${panelHTML(sec.panels[0], 0)}<div class="pvann" id="pvann" role="group" aria-label="PV loop landmarks"></div></div><div id="circwrap" hidden>${circModelHTML(true)}</div><div class="mini" id="mini" aria-live="off"></div><p class="tgtline" id="tgtline" hidden></p><div class="drugfx" id="drugfx"></div><div class="drugfx strat" id="strat" hidden></div></div>${labAside()}</div><div class="plots below">${sec.panels.slice(1).map((p, i) => panelHTML(p, i + 1)).join('')}</div>` : ''}
   ${!sec.kind && !sec.panels.some(p => p.type === 'monitor') ? vbarHTML() : ''}
   <div class="work" ${sec.kind === 'lab' ? 'hidden' : ''}>
     <div class="plots">${sec.kind === 'lab' ? '' : panels}</div>
@@ -3243,7 +3246,7 @@ const CM_PATHS = {
 };
 // [id, side, top %, title, values(b) -> [[label, text, key-for-range]], vessel colour]
 const CM_CARDS = [
-  ['lung', 'l', 3, 'Lungs', b => [['PVR', fmt(b.PVR, 1) + ' WU', 'PVR'], ['SaO₂', fmt((HOME_SIM ? HOME_SIM.p.SaO2 : 0.98) * 100) + '%', null]], 'pa'],
+  ['lung', 'l', 3, 'Lungs', (b, sm) => [['PVR', fmt(b.PVR, 1) + ' WU', 'PVR'], ['SaO₂', fmt((sm && sm.p ? sm.p.SaO2 : 0.98) * 100) + '%', null]], 'pa'],
   ['pa', 'l', 25, 'Pulmonary artery', b => [['PA', `${fmt(b.PAS)}/${fmt(b.PAD)} (${fmt(b.mPAP)})`, 'PA']], 'pa'],
   ['ven', 'l', 58, 'Veins → right heart', b => [['CVP', fmt(b.RAP) + ' mmHg', 'RAP'], ['Veins', cmVeinTxt(b.RAP), null], ['SvO₂', fmt(b.SvO2 * 100) + '%', 'SvO2']], 'ven'],
   ['o2', 'l', 82, 'O₂ supply and use', b => [['DO₂', fmt(b.DO2) + ' mL/min', 'DO2'], ['VO₂', fmt(b.VO2) + ' mL/min', null]], 'ven'],
@@ -3261,7 +3264,10 @@ function cmBad(key, b) {
   const r = CM_RANGE[key], v = key === 'CI' ? b.CO / 1.9 : key === 'SvO2' ? b.SvO2 : key === 'EF' ? b.EF : b[key];
   return r && isFinite(v) && (v < r[0] || v > r[1]);
 }
-function circModelHTML() {
+// rows always shown in the lab's Circulation view; the rest appear in Advanced mode
+const CM_LAB_ROWS = new Set(['CVP', 'Veins', 'PCWP', 'MAP', 'CI', 'HR', 'LVEF', 'Arterioles']);
+const CM_LAB_ADV_CARDS = new Set(['lung', 'pa', 'o2']);
+function circModelHTML(lab) {
   const ix = x => 22 + x / 1024 * 56, iy = y => y / 1536 * 100;
   return `<figure class="cmfig"><div class="cm" id="cm" role="img" aria-label="Live circulation: heart, lungs and body with pressures and flows">
     <div class="cmimg"><img src="${CIRC_IMG}" alt="" width="1024" height="1536"><svg viewBox="0 0 1024 1536" aria-hidden="true">
@@ -3270,14 +3276,15 @@ function circModelHTML() {
       ${cmOverlaySVG()}
       ${Object.entries(CM_PATHS).map(([k, [d]]) => `<path id="cmp_${k}" d="${d}" fill="none" stroke="none"/><g id="cmd_${k}"></g>`).join('')}
     </svg></div>
-    ${CM_CARDS.map(([id, side, top, t, , ves]) => `<div class="cmc ${side} ${CM_PATHS[ves][1] === '#2f6fde' ? 'blue' : 'red'}" style="top:${top}%" data-cm="${id}"><span class="cmt">${esc(t)}</span><span class="cmv"></span></div>`).join('')}
+    ${CM_CARDS.map(([id, side, top, t, , ves]) => `<div class="cmc ${side} ${CM_PATHS[ves][1] === '#2f6fde' ? 'blue' : 'red'}${AO(lab && CM_LAB_ADV_CARDS.has(id))}" style="top:${top}%" data-cm="${id}"><span class="cmt">${esc(t)}</span><span class="cmv"></span></div>`).join('')}
     <div class="cmc mid" style="left:${ix(260)}%;width:${ix(764) - ix(260)}%;top:${iy(1040)}%" data-cm="heart"><span class="cmt">Heart</span><span class="cmv"></span></div>
   </div>
+  ${lab ? `<p class="cmcap">The patient you are editing, drawn as a circulation. Blue is deoxygenated blood returning through the right heart to the lungs; red is oxygenated blood leaving the left heart. Dots move with cardiac output; the arterioles in the body narrow as SVR rises; the veins swell with CVP.</p></figure>` : `
   <div class="cmscen" role="group" aria-label="Choose a patient">${CM_SCEN.map(n => `<button type="button" class="tg sm ${n === HOME_SCEN ? 'on' : ''}" data-scen="${esc(n)}">${esc(n.replace(' (vasodilatory)', ''))}</button>`).join('')}</div>
   <div class="cmsl"><label><span>Systemic vascular resistance <b id="cmsvrv"></b></span><input type="range" id="cmsvr" min="-1" max="1" step="0.01" value="0" aria-describedby="cmslh"></label>
   <label><span>Blood volume <b id="cmvolv"></b></span><input type="range" id="cmvol" min="-700" max="1500" step="25" value="0" aria-describedby="cmslh"></label>
   <p class="help" id="cmslh">Starts from the patient chosen above. Watch the arterioles squeeze or open, blood back up before them, and the veins fill or flatten.</p></div>
-  <figcaption>The live model behind every lesson: blue is deoxygenated blood returning through the right heart to the lungs, red is oxygenated blood leaving the left heart for the body. The moving dots speed up and slow down with cardiac output. Pick a patient to see the whole circuit shift. <a href="#pv-loop-lab" id="cmlab">Open this patient in the PV loop lab →</a></figcaption></figure>`;
+  <figcaption>The live model behind every lesson: blue is deoxygenated blood returning through the right heart to the lungs, red is oxygenated blood leaving the left heart for the body. The moving dots speed up and slow down with cardiac output. Pick a patient to see the whole circuit shift. <a href="#pv-loop-lab" id="cmlab">Open this patient in the PV loop lab →</a></figcaption></figure>`}`;
 }
 function cmScenario(name) {
   const pr = (window.LAB_PRESETS.find(p => p[0] === name) || window.LAB_PRESETS[0]);
@@ -3292,17 +3299,24 @@ function cmSlLabels() {
   document.getElementById('cmsvrv').textContent = m > 1.02 ? `×${fmt(m, 1)} (constricted)` : m < 0.98 ? `×${fmt(m, 2)} (dilated)` : 'as patient';
   document.getElementById('cmvolv').textContent = +v.value === 0 ? 'as patient' : `${+v.value > 0 ? '+' : '−'}${Math.abs(+v.value)} mL`;
 }
-function cmUpdate() {
-  const s = HOME_SIM, b = s && s.b; if (!b) return;
-  const row = (l, v, key) => `<span class="cmr ${key && cmBad(key, b) ? 'bad' : ''}"${key && DEF[key] ? ` title="${esc(DEF[key])}"` : ''}><i>${esc(l)}</i><b>${esc(v)}</b></span>`;
-  CM_CARDS.forEach(([id, , , , vals]) => { const el = document.querySelector(`[data-cm="${id}"] .cmv`); if (el) { const h = vals(b).map(r => row(...r)).join(''); if (el.innerHTML !== h) el.innerHTML = h; } });
+function cmUpdate(s = HOME_SIM, lab = false) {
+  const b = s && s.b; if (!b) return;
+  const keep = l => !lab || ADV || CM_LAB_ROWS.has(l);
+  const row = (l, v, key) => keep(l) ? `<span class="cmr ${key && cmBad(key, b) ? 'bad' : ''}"${key && DEF[key] ? ` title="${esc(DEF[key])}"` : ''}><i>${esc(l)}</i><b>${esc(v)}</b></span>` : '';
+  CM_CARDS.forEach(([id, , , , vals]) => { const el = document.querySelector(`[data-cm="${id}"] .cmv`); if (el) { const h = vals(b, s).map(r => row(...r)).join(''); if (el.innerHTML !== h) el.innerHTML = h; } });
   const hv = document.querySelector('[data-cm="heart"] .cmv');
-  if (hv) { const h = row('CO', fmt(b.CO, 1) + ' L/min', null) + row('CI', fmt(b.CO / 1.9, 2), 'CI') + row('HR', fmt(b.HR), 'HR') + row('SV', fmt(b.SV) + ' mL', 'SV') + row('EF', fmt(b.EF * 100) + '%', 'EF'); if (hv.innerHTML !== h) hv.innerHTML = h; }
+  if (hv) { const ef = lab ? 'LVEF' : 'EF';
+    const h = lab ? row('CI', fmt(b.CO / 1.9, 2) + ' L/min/m²', 'CI') + row('HR', fmt(b.HR) + ' bpm', 'HR') + row(ef, fmt(b.EF * 100) + '%', 'EF') + row('CO', fmt(b.CO, 1) + ' L/min', null) + row('SV', fmt(b.SV) + ' mL', 'SV')
+      : row('CO', fmt(b.CO, 1) + ' L/min', null) + row('CI', fmt(b.CO / 1.9, 2), 'CI') + row('HR', fmt(b.HR), 'HR') + row('SV', fmt(b.SV) + ' mL', 'SV') + row(ef, fmt(b.EF * 100) + '%', 'EF');
+    if (hv.innerHTML !== h) hv.innerHTML = h; }
 }
 function cmFrame(dt) {
   const s = HOME_SIM; if (!s) return;
   if (running) { const n = Math.round(dt * speed / 0.00025); for (let i = 0; i < n; i++) s.step(0.00025); }
-  const b = s.b; if (!b) return;
+  cmDraw(s, dt);
+}
+function cmDraw(s, dt) {
+  const b = s && s.b; if (!b) return;
   // heart glow follows LV ejection
   const hg = document.getElementById('cmheart');
   if (hg) { const v = s.y[1], ej = b.SV > 1 ? Math.max(0, Math.min(1, (b.LVEDV - v) / b.SV)) : 0; hg.setAttribute('opacity', cmReduce() ? 0 : (0.15 + 0.85 * ej).toFixed(2)); }
@@ -3375,6 +3389,9 @@ document.addEventListener('click', e => {
   const t = e.target.closest('button, a'); if (!t) return;
   if (t.dataset.mode) { setMode(t.dataset.mode === 'adv'); return; }
   if (t.dataset.scen) { cmScenario(t.dataset.scen); return; }
+  if (t.dataset.lv) { S.labView.view = t.dataset.lv; const c = t.dataset.lv === 'circ';
+    $('#pvwrap').hidden = c; $('#circwrap').hidden = !c; document.querySelectorAll('[data-lv]').forEach(b => { const on = b.dataset.lv === t.dataset.lv; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    if (c) { cmOff = {}; cmUpdate(sim, true); } S.dirty = true; return; }
   if (t.id === 'cmlab') { PENDING_PRESET = HOME_SCEN; return; }
   if (t.dataset.v !== undefined && t.dataset.k) { applyCtl(t.dataset.k, !!t.dataset.g, +t.dataset.v); updateRO(); return; }
   if (t.dataset.tab !== undefined) { S.tab = +t.dataset.tab; renderLabTab(); return; }
@@ -3443,6 +3460,8 @@ function frameLoop(ts) {
   const dt = Math.min(0.05, (ts - lastT) / 1000 || 0); lastT = ts;
   if (sim && running && sec) { const n = Math.round(dt * speed / 0.00025); for (let i = 0; i < n; i++) sim.step(0.00025); }
   if (!sec && HOME_SIM && document.getElementById('cm')) { cmFrame(dt); if (ts - roT > 300) { roT = ts; cmUpdate(); } }
+  const labCirc = sec && sec.kind === 'lab' && S.labView && S.labView.view === 'circ' && sim;
+  if (labCirc) { cmDraw(sim, dt); if (ts - (S.cmT || 0) > 300) { S.cmT = ts; cmUpdate(sim, true); } }
   if (sec) {
     const live = sec.kind !== 'gas';
     if (live || S.dirty) { sec.panels.forEach((p, i) => { const cv = document.getElementById('cv' + i); if (cv) { try { PANEL[p.type](p, cv); } catch (err) { console.error(err); } } }); S.dirty = false; }
