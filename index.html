@@ -372,6 +372,11 @@ body.adv .basic-only{display:none!important}
 .hero.homehero .ht{max-width:780px}
 .hero.homehero .cmfig{width:100%;max-width:940px}
 .cmr i:empty{display:none}
+.cmsl{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin:6px 0}
+.cmsl label{display:flex;flex-direction:column;gap:2px;font-size:13px;font-weight:600}
+.cmsl label b{font-weight:600;color:var(--muted);margin-left:4px}
+.cmsl .help{grid-column:1/-1;margin:0}
+@media (max-width:560px){.cmsl{grid-template-columns:1fr}}
 
 </style>
 </head>
@@ -1810,7 +1815,7 @@ window.SECTIONS = SECTIONS; window.GROUPS_NAV = GROUPS_NAV; window.LAB_PRESETS =
 // ================= Circulus UI =================
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const fmt = (v, d = 0) => (v === null || v === undefined || !isFinite(v)) ? '–' : (+v).toFixed(d);
+const fmt = (v, d = 0) => { if (v === null || v === undefined || !isFinite(v)) return '–'; const s = (+v).toFixed(d); return /^-0(\.0*)?$/.test(s) ? s.slice(1) : s; };
 const css = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
 
 // ---------- control catalog: [label, unit, min, max, step, scale, decimals, help]
@@ -3204,6 +3209,30 @@ function applyStrat(i) {
   S.lastEdit = performance.now();
 }
 
+// visual cues on the home picture: arteriole tone (SVR), arterial back-up (SVR), vein distension (CVP)
+const CM_VEIN = 'M362,1350 C330,1350 300,1350 270,1350 C200,1350 158,1305 158,1200 L158,840 C158,745 225,712 330,712';
+const CM_BR = [1255, 1300, 1345, 1392, 1440];   // arteriole branch end heights at the purple midpoint (x 560)
+const cmTone = svr => svr < 800 ? 'dilated' : svr > 1400 ? 'constricted' : 'normal';
+const cmVeinTxt = cvp => cvp < 2 ? 'flat (dry)' : cvp > 12 ? 'distended' : 'normal';
+function cmOverlaySVG() {
+  return `<defs>
+      <linearGradient id="cmart" gradientUnits="userSpaceOnUse" x1="760" y1="0" x2="555" y2="0"><stop offset="0" stop-color="#e8343a"/><stop offset=".7" stop-color="#e2475a"/><stop offset="1" stop-color="#b8609a"/></linearGradient>
+      <linearGradient id="cmmask" gradientUnits="userSpaceOnUse" x1="545" y1="0" x2="590" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".97"/></linearGradient>
+    </defs>
+    <g id="cmveins"><path d="${CM_VEIN}" fill="none" stroke="#fff" stroke-width="66"/><path id="cmv1" d="${CM_VEIN}" fill="none" stroke="#1f52bd" stroke-width="50"/><path id="cmv2" d="${CM_VEIN}" fill="none" stroke="#3a78e4" stroke-width="35"/><path id="cmv3" d="${CM_VEIN}" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="8" transform="translate(-6,-4)"/></g>
+    <g id="cmbed"><path d="M545,1225 L800,1225 L800,1475 L545,1475 Z" fill="url(#cmmask)"/>
+      ${CM_BR.map((y, i) => `<path id="cmbr${i}" d="M738,1345 C690,1345 650,${y} 556,${y}" fill="none" stroke="url(#cmart)" stroke-width="16" stroke-linecap="round"/>`).join('')}
+      <path d="M806,1345 C780,1345 755,1345 732,1345" stroke="#e8343a" stroke-width="40" stroke-linecap="butt"/><circle cx="734" cy="1345" r="20" fill="#e6404a"/></g>`;
+}
+function cmOverlayUpdate(b) {
+  // arterioles: radius scales with SVR^-0.6 (real radius ∝ resistance^-¼; exaggerated so the change is visible)
+  const w = Math.max(3, Math.min(32, 16 * Math.pow(1300 / Math.max(b.SVR, 200), 0.6)));
+  CM_BR.forEach((y, i) => { const p = document.getElementById('cmbr' + i); if (p) p.setAttribute('stroke-width', w.toFixed(1)); });
+  // veins: width follows CVP (normal 4 mmHg ≈ the drawn tube)
+  const W = Math.max(26, Math.min(112, 50 * (0.7 + 0.075 * b.RAP)));
+  const v1 = document.getElementById('cmv1'); if (v1) { v1.setAttribute('stroke-width', W.toFixed(1)); document.getElementById('cmv2').setAttribute('stroke-width', (W * 0.7).toFixed(1)); document.getElementById('cmv3').setAttribute('stroke-width', Math.max(3, W * 0.16).toFixed(1)); }
+}
+
 // ---------- home: live circulation picture
 // picture frame: the image (1024×1536) fills the middle 56% of the box; gutters hold the value cards
 const CM_PATHS = {
@@ -3216,15 +3245,15 @@ const CM_PATHS = {
 const CM_CARDS = [
   ['lung', 'l', 3, 'Lungs', b => [['PVR', fmt(b.PVR, 1) + ' WU', 'PVR'], ['SaO₂', fmt((HOME_SIM ? HOME_SIM.p.SaO2 : 0.98) * 100) + '%', null]], 'pa'],
   ['pa', 'l', 25, 'Pulmonary artery', b => [['PA', `${fmt(b.PAS)}/${fmt(b.PAD)} (${fmt(b.mPAP)})`, 'PA']], 'pa'],
-  ['ven', 'l', 58, 'Veins → right heart', b => [['CVP', fmt(b.RAP) + ' mmHg', 'RAP'], ['SvO₂', fmt(b.SvO2 * 100) + '%', 'SvO2']], 'ven'],
+  ['ven', 'l', 58, 'Veins → right heart', b => [['CVP', fmt(b.RAP) + ' mmHg', 'RAP'], ['Veins', cmVeinTxt(b.RAP), null], ['SvO₂', fmt(b.SvO2 * 100) + '%', 'SvO2']], 'ven'],
   ['o2', 'l', 82, 'O₂ supply and use', b => [['DO₂', fmt(b.DO2) + ' mL/min', 'DO2'], ['VO₂', fmt(b.VO2) + ' mL/min', null]], 'ven'],
   ['pv', 'r', 25, 'Pulmonary veins → left heart', b => [['PCWP', fmt(b.LAP) + ' mmHg', 'LAP']], 'pv'],
   ['ao', 'r', 58, 'Aorta', b => [['BP', `${fmt(b.SBP)}/${fmt(b.DBP)}`, 'BP'], ['MAP', fmt(b.MAP) + ' mmHg', 'MAP']], 'sa'],
-  ['body', 'r', 82, 'Body (systemic vessels)', b => [['SVR', fmt(b.SVR), 'SVR'], ['', 'dyn·s/cm⁵', null]], 'sa'],
+  ['body', 'r', 80, 'Body (systemic vessels)', b => [['SVR', fmt(b.SVR) + ' dyn·s/cm⁵', 'SVR'], ['Arterioles', cmTone(b.SVR), null]], 'sa'],
 ];
 const CM_SCEN = ['Normal heart', 'Heart failure, reduced EF', 'Heart failure, preserved EF', 'Cardiac amyloidosis', 'Cardiogenic shock', 'Septic (vasodilatory) shock', 'Cardiac tamponade', 'Pulmonary hypertension', 'Severe aortic stenosis', 'Peak exercise'];
 const CM_RANGE = { PVR: [0, 2], PA: null, RAP: [2, 8], SvO2: [0.65, 0.8], DO2: [800, 1400], LAP: [6, 12], BP: null, MAP: [70, 105], SVR: [800, 1400], CI: [2.5, 4], HR: [55, 100], SV: [55, 100], EF: [0.52, 0.72] };
-let HOME_SIM = null, HOME_SCEN = 'Normal heart', PENDING_PRESET = null, cmT = 0, cmOff = {};
+let HOME_BASE = null, HOME_SIM = null, HOME_SCEN = 'Normal heart', PENDING_PRESET = null, cmT = 0, cmOff = {};
 const cmReduce = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
 function cmBad(key, b) {
   if (key === 'BP') return b.SBP < 90 || b.DBP < 50 || b.SBP > 140 || b.DBP > 90;
@@ -3238,19 +3267,30 @@ function circModelHTML() {
     <div class="cmimg"><img src="${CIRC_IMG}" alt="" width="1024" height="1536"><svg viewBox="0 0 1024 1536" aria-hidden="true">
       <defs><radialGradient id="cmglow"><stop offset="0" stop-color="#ff5a6e" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a6e" stop-opacity="0"/></radialGradient></defs>
       <circle id="cmheart" cx="520" cy="800" r="230" fill="url(#cmglow)" opacity="0"/>
+      ${cmOverlaySVG()}
       ${Object.entries(CM_PATHS).map(([k, [d]]) => `<path id="cmp_${k}" d="${d}" fill="none" stroke="none"/><g id="cmd_${k}"></g>`).join('')}
     </svg></div>
     ${CM_CARDS.map(([id, side, top, t, , ves]) => `<div class="cmc ${side} ${CM_PATHS[ves][1] === '#2f6fde' ? 'blue' : 'red'}" style="top:${top}%" data-cm="${id}"><span class="cmt">${esc(t)}</span><span class="cmv"></span></div>`).join('')}
     <div class="cmc mid" style="left:${ix(260)}%;width:${ix(764) - ix(260)}%;top:${iy(1040)}%" data-cm="heart"><span class="cmt">Heart</span><span class="cmv"></span></div>
   </div>
   <div class="cmscen" role="group" aria-label="Choose a patient">${CM_SCEN.map(n => `<button type="button" class="tg sm ${n === HOME_SCEN ? 'on' : ''}" data-scen="${esc(n)}">${esc(n.replace(' (vasodilatory)', ''))}</button>`).join('')}</div>
+  <div class="cmsl"><label><span>Systemic vascular resistance <b id="cmsvrv"></b></span><input type="range" id="cmsvr" min="-1" max="1" step="0.01" value="0" aria-describedby="cmslh"></label>
+  <label><span>Blood volume <b id="cmvolv"></b></span><input type="range" id="cmvol" min="-700" max="1500" step="25" value="0" aria-describedby="cmslh"></label>
+  <p class="help" id="cmslh">Starts from the patient chosen above. Watch the arterioles squeeze or open, blood back up before them, and the veins fill or flatten.</p></div>
   <figcaption>The live model behind every lesson: blue is deoxygenated blood returning through the right heart to the lungs, red is oxygenated blood leaving the left heart for the body. The moving dots speed up and slow down with cardiac output. Pick a patient to see the whole circuit shift. <a href="#pv-loop-lab" id="cmlab">Open this patient in the PV loop lab →</a></figcaption></figure>`;
 }
 function cmScenario(name) {
   const pr = (window.LAB_PRESETS.find(p => p[0] === name) || window.LAB_PRESETS[0]);
-  HOME_SCEN = pr[0]; HOME_SIM = new Sim(Object.assign({}, pr[1])); HOME_SIM.run(12);
+  HOME_SCEN = pr[0]; HOME_SIM = new Sim(Object.assign({}, pr[1])); HOME_SIM.run(12); HOME_BASE = { Ras: HOME_SIM.p.Ras, dV: HOME_SIM.p.dV };
+  ['cmsvr', 'cmvol'].forEach(id => { const el = document.getElementById(id); if (el) el.value = 0; }); cmSlLabels();
   document.querySelectorAll('[data-scen]').forEach(b => b.classList.toggle('on', b.dataset.scen === HOME_SCEN));
   cmUpdate(true);
+}
+function cmSlLabels() {
+  const a = document.getElementById('cmsvr'), v = document.getElementById('cmvol'); if (!a || !v) return;
+  const m = Math.pow(2.5, +a.value);
+  document.getElementById('cmsvrv').textContent = m > 1.02 ? `×${fmt(m, 1)} (constricted)` : m < 0.98 ? `×${fmt(m, 2)} (dilated)` : 'as patient';
+  document.getElementById('cmvolv').textContent = +v.value === 0 ? 'as patient' : `${+v.value > 0 ? '+' : '−'}${Math.abs(+v.value)} mL`;
 }
 function cmUpdate() {
   const s = HOME_SIM, b = s && s.b; if (!b) return;
@@ -3266,15 +3306,20 @@ function cmFrame(dt) {
   // heart glow follows LV ejection
   const hg = document.getElementById('cmheart');
   if (hg) { const v = s.y[1], ej = b.SV > 1 ? Math.max(0, Math.min(1, (b.LVEDV - v) / b.SV)) : 0; hg.setAttribute('opacity', cmReduce() ? 0 : (0.15 + 0.85 * ej).toFixed(2)); }
-  if (cmReduce()) return;
+  if (cmReduce()) { cmOverlayUpdate(b); return; }
   // blood dots: speed proportional to cardiac output
   const vel = 330 * Math.max(0.2, b.CO / 5.5) * (running ? speed : 0);
+  cmOverlayUpdate(b);
+  const jam = Math.max(0.45, Math.min(3, b.SVR / 1300)), A = 0.24;   // last 24% of the arterial path is the run-up to the arterioles
   for (const k in CM_PATHS) {
     const p = document.getElementById('cmp_' + k), g = document.getElementById('cmd_' + k); if (!p || !g) continue;
-    const L = p.getTotalLength(), gap = 90, n = Math.floor(L / gap), col = CM_PATHS[k][1], r = 11 * CM_PATHS[k][2];
+    const L = p.getTotalLength(), gap = 90, col = CM_PATHS[k][1], r = 11 * CM_PATHS[k][2];
+    // travel "time" in length units: the run-up segment takes jam× longer on the arterial path
+    const j = k === 'sa' ? jam : 1, T = (1 - A) * L + A * L * j, n = Math.max(2, Math.round(T / gap)), gp = T / n;
     if (g.childElementCount !== n) g.innerHTML = Array.from({ length: n }, () => `<circle r="${r}" fill="#fff" stroke="${col}" stroke-width="3" opacity=".92"/>`).join('');
-    cmOff[k] = ((cmOff[k] || 0) + vel * dt) % gap;
-    [...g.children].forEach((c, i) => { const pt = p.getPointAtLength((i * gap + cmOff[k]) % L); c.setAttribute('cx', pt.x.toFixed(1)); c.setAttribute('cy', pt.y.toFixed(1)); });
+    cmOff[k] = ((cmOff[k] || 0) + vel * dt) % gp;
+    [...g.children].forEach((c, i) => { const t = (i * gp + cmOff[k]) % T, s2 = t < (1 - A) * L ? t : (1 - A) * L + (t - (1 - A) * L) / j;
+      const pt = p.getPointAtLength(Math.min(L, s2)); c.setAttribute('cx', pt.x.toFixed(1)); c.setAttribute('cy', pt.y.toFixed(1)); });
   }
 }
 
@@ -3293,6 +3338,12 @@ function HOME() {
 function bindHome() { if (!HOME_SIM) cmScenario(HOME_SCEN); else { document.querySelectorAll('[data-scen]').forEach(b => b.classList.toggle('on', b.dataset.scen === HOME_SCEN)); cmUpdate(); } }
 
 // ---------- events
+document.addEventListener('input', e => {
+  const t = e.target; if (!HOME_SIM || !HOME_BASE || (t.id !== 'cmsvr' && t.id !== 'cmvol')) return;
+  if (t.id === 'cmsvr') HOME_SIM.set('Ras', HOME_BASE.Ras * Math.pow(2.5, +t.value));
+  else HOME_SIM.set('dV', HOME_BASE.dV + +t.value);
+  cmSlLabels();
+});
 document.addEventListener('input', e => {
   const t = e.target; if (!t.dataset || !t.dataset.k || t.type !== 'range') return;
   const c = (t.dataset.g ? GCTL : CTL)[t.dataset.k];
