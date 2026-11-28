@@ -46,10 +46,10 @@ button,select,input{font:inherit;color:inherit}
 .brand svg{width:34px;height:34px}
 .brand small{font:400 13px "Red Hat Text",system-ui,sans-serif;opacity:.8;margin-left:4px}
 .tb{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.tb button,.tb select{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:8px;min-height:40px;padding:0 14px;cursor:pointer}
+.tb button,.tb select{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:7px;min-height:30px;padding:0 10px;font-size:13px;cursor:pointer}
 .tb select option{color:#111}
 .tb button:hover{background:rgba(255,255,255,.22)}
-#play{min-width:84px;font-weight:600;background:#fff;color:var(--brand)}
+#play{min-width:64px;font-weight:600;background:#fff;color:var(--brand)}
 #simt{font-variant-numeric:tabular-nums;opacity:.85;font-size:14px;min-width:56px}
 #menu,#navsel{display:none}
 /* layout */
@@ -116,6 +116,17 @@ main{padding:22px clamp(14px,2.4vw,34px) 60px}
 .lp select{min-height:40px;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:0 10px;font-size:15px}
 .tgs{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .tl{font-size:13px;color:var(--muted);margin-right:2px}
+.pvset{margin-left:auto;position:relative;align-self:center}
+.pvset>summary{list-style:none;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);cursor:pointer}
+.pvset>summary::-webkit-details-marker{display:none}
+.pvset>summary:hover{border-color:var(--brand)}
+.pvset>summary:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.pvset>summary svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.pvset[open]>summary{background:var(--brand);border-color:var(--brand);color:#fff}
+.pvset[open]>summary svg{transform:rotate(45deg)}
+.pvpop{position:absolute;right:0;top:calc(100% + 6px);z-index:30;width:max-content;max-width:min(340px,80vw);background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.18);padding:10px 12px;display:grid;gap:8px;font:400 13.5px "Red Hat Text",system-ui,sans-serif}
+.pvpop .tg{min-height:32px;padding:0 9px;font-size:13px}
+.pvpop .tl{min-width:44px}
 .tg{border:1px solid var(--line);background:var(--bg);border-radius:8px;min-height:38px;padding:0 11px;cursor:pointer;font-size:14px}
 .tg.on{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
 .changes{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-height:30px}
@@ -144,6 +155,55 @@ main{padding:22px clamp(14px,2.4vw,34px) 60px}
 .m small{font-size:11px;color:var(--muted)}
 .m.bad{background:var(--tint)}.m.bad b{color:var(--lv)}
 .plots.below{margin-top:14px}
+.plotcol{min-width:0}
+.plots[hidden]{display:none}
+/* teaching layer: value descriptions, profile view, predictions, explanations */
+#phystip{position:fixed;z-index:1000;max-width:330px;background:#1b1d22;color:#eef0f3;border-radius:10px;padding:10px 12px;font:13px/1.45 "Red Hat Text",system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.3);pointer-events:none;display:grid;gap:5px}
+#phystip[hidden]{display:none}
+#phystip b{font-size:13.5px}
+#phystip .pd{color:#aeb6c2;font-size:12px}
+#phystip i{font-style:normal;font-weight:600;color:#ffb3be}
+body.adv [data-phys]{cursor:help}
+body.adv .r[data-phys] .rl,body.adv .m[data-phys]>span,body.adv .v[data-phys] .vl,body.adv .bf[data-phys]>span:first-child{text-decoration:underline dotted;text-underline-offset:3px;text-decoration-color:color-mix(in srgb,currentColor 45%,transparent)}
+.predtg{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;margin:0 0 6px;cursor:pointer}
+.predtg input{width:16px;height:16px;accent-color:var(--brand)}
+.pred{display:grid;gap:8px}
+.pred p{margin:0}
+.prow{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.prow>span{min-width:180px;font-weight:600;font-size:14px}
+.prow .tg.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.pact{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.why{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;font-size:14.5px}
+.pres p{margin:0 0 4px}
+.pres ul{margin:0 0 8px;padding-left:18px;display:grid;gap:2px}
+.pres li.ok{color:#1f7a3f}
+.pres li.no{color:#b3261e}
+.whyd>summary{cursor:pointer;font-weight:700;margin-bottom:6px}
+.whyd .wd,.whyd .wnet{margin:6px 0}
+.whyd ol{margin:6px 0;padding-left:20px;display:grid;gap:5px}
+.wchg{font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+#labwhy{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-top:12px;font-size:14px}
+#labwhy[hidden]{display:none}
+#labwhy .wh{margin:0 0 4px}
+.prof .profbar{display:flex;flex-wrap:wrap;gap:8px;margin:8px 4px 2px}
+.prof .profbar .tg{min-height:32px;font-size:13px}
+.prof .help{margin:6px 4px 2px}
+.guy .help{margin:6px 4px 2px}
+.vbadge{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:10px;background:#e6f3ec;color:#1f6b3d;font-size:11px;font-weight:700;letter-spacing:.02em;vertical-align:1px;cursor:help}
+.chal{display:grid;gap:8px}
+.chal p{margin:0}
+.chalpick{display:grid;gap:3px;text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;cursor:pointer;color:var(--ink);font:inherit}
+.chalpick:hover{border-color:var(--brand)}
+.chalpick b{font-size:14.5px}
+.chalpick span{font-size:13.5px}
+.chalpick small{color:var(--muted);font-size:12px}
+.cgoals{list-style:none;margin:2px 0;padding:0;display:grid;gap:4px}
+.cgoals li{font-weight:600;font-size:14px}
+.cgoals li span{font-weight:400;color:var(--muted);margin-left:4px}
+.cgoals li.ok{color:#1f7a3f}
+.cgoals li.no{color:#b3261e}
+.cstat{font-weight:600}
+.cdeb{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:6px;display:grid;gap:6px;font-size:14px}
 /* lab: hide the lesson list below 1400px to make room for loop + editor side by side */
 @media (min-width:901px) and (max-width:1399px){
   body.labmode .app{grid-template-columns:minmax(0,1fr)}
@@ -205,6 +265,13 @@ main{padding:22px clamp(14px,2.4vw,34px) 60px}
 .bf .nb small{flex:none;font-size:11.5px;color:var(--muted)}
 .bgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
 .bf.calc input{background:var(--grid);color:var(--muted)}
+/* builder fields: label and a short input on one line */
+.bgrid{grid-template-columns:1fr;gap:6px}
+.bf{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+.bf>span:first-child{flex:1;min-width:0}
+.bf .nb{flex:none}
+.bf .nb input{flex:none;width:88px;min-height:34px;font-size:15px}
+.bf .nb small{width:64px}
 .bq,.bapply{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 12px}
 .bq .tg,.bapply .tg{min-height:34px;font-size:13px}
 .bstat{font-size:13.5px;margin:8px 0 4px;min-height:1em}
@@ -230,6 +297,17 @@ main{padding:22px clamp(14px,2.4vw,34px) 60px}
 .ctrl .pins{margin-top:8px}
 /* readouts */
 .ro{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:10px;margin:18px 0}
+.rowrap{margin:18px 0}
+.rowrap:has(.ro:empty){display:none}
+.rowrap>summary{list-style:none;display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:14px;min-height:36px;padding:0 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.rowrap>summary::-webkit-details-marker{display:none}
+.rowrap>summary::after{content:'';width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px)}
+.rowrap[open]>summary::after{transform:rotate(-135deg) translateY(-2px)}
+.rowrap>summary:hover{border-color:var(--brand)}
+.rowrap>summary:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.rowrap .rohd,.rowrap[open] .rosh{display:none}
+.rowrap[open] .rohd{display:inline}
+.rowrap .ro{margin:12px 0 0}
 .r{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px;display:flex;flex-direction:column;gap:1px}
 .rl{font-size:12.5px;color:var(--muted);line-height:1.25}
 .rv{font:600 23px "Red Hat Display",system-ui,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -307,7 +385,7 @@ main{padding:22px clamp(14px,2.4vw,34px) 60px}
   .top{position:relative}
   #nav{top:0;z-index:40}
   .brand small{display:none}
-  .tb button,.tb select{min-height:40px;padding:0 10px;font-size:14px}
+  .tb button,.tb select{min-height:32px;padding:0 9px;font-size:13px}
   #simt{display:none}
   .tb{width:100%}
   .tb select#speed{flex:0 0 auto}
@@ -336,7 +414,7 @@ main{padding:22px clamp(14px,2.4vw,34px) 60px}
 body:not(.adv) .adv-only{display:none!important}
 body.adv .basic-only{display:none!important}
 .mode{display:inline-flex;border:1px solid rgba(255,255,255,.35);border-radius:9px;overflow:hidden;background:rgba(255,255,255,.08)}
-.mode button{background:transparent;border:0;color:#fff;min-height:38px;padding:0 12px;font:600 14px "Red Hat Text",system-ui,sans-serif;cursor:pointer;border-radius:0}
+.mode button{background:transparent;border:0;color:#fff;min-height:28px;padding:0 10px;font:600 13px "Red Hat Text",system-ui,sans-serif;cursor:pointer;border-radius:0}
 .mode button.on{background:#fff;color:var(--brand,#8a1023)}
 .mode button:focus-visible{outline:2px solid #fff;outline-offset:-3px}
 .moreadv{margin-top:10px}
@@ -396,7 +474,7 @@ body.navopen #nav{transform:none}
 body.navopen main{filter:brightness(.92)}
 
 /* header link and the Math & model page */
-.hlink{color:#fff;text-decoration:none;font-weight:600;font-size:14.5px;border:1px solid rgba(255,255,255,.35);border-radius:8px;padding:0 12px;min-height:40px;display:inline-flex;align-items:center;margin-left:4px;white-space:nowrap}
+.hlink{color:#fff;text-decoration:none;font-weight:600;font-size:13px;border:1px solid rgba(255,255,255,.35);border-radius:7px;padding:0 10px;min-height:30px;display:inline-flex;align-items:center;margin-left:4px;white-space:nowrap}
 .hlink:hover{background:rgba(255,255,255,.12)}
 .hlink:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .mathpage{max-width:900px}
@@ -438,7 +516,6 @@ body.mathmode #play,body.mathmode #speed,body.mathmode .mode{display:none}
     <div class="mode" role="group" aria-label="Detail level" title="Basic shows the core numbers; Advanced reveals every metric and setting"><button type="button" data-mode="basic" aria-pressed="true" class="on">Basic</button><button type="button" data-mode="adv" aria-pressed="false">Advanced</button></div>
     <button id="play" aria-pressed="false" title="Pause or resume (Space)">Pause</button>
     <select id="speed" aria-label="Simulation speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
-    <button id="settle" title="Run 10 simulated seconds instantly">Skip to steady state</button>
     <button id="resetsec">Reset lesson</button>
     <span id="simt" aria-hidden="true"></span>
   </div>
@@ -468,6 +545,7 @@ const DEFAULTS = {
   // valves (effective orifice areas, cm^2)
   av_f: 3.5, av_r: 0, mv_f: 5, mv_r: 0, tv_f: 6, tv_r: 0, pv_f: 3.5, pv_r: 0,
   asd: 0, vsd: 0,                         // shunt orifice areas cm^2
+  fmr: 0.4, fmrV: 120,                    // functional MR: extra regurgitant area (cm^2) per 100 mL of LV end-systolic volume above fmrV
   // pericardium
   peri: 1, periV0: 340, periK: 0.03, periA: 1.0, eff: 0,
   // respiration 0 none, 1 spontaneous, 2 positive-pressure
@@ -543,14 +621,14 @@ function effective(p) {
   e.Ras *= 1 - 0.8 * ep + 3.2 * ep * ep; e.V0sv -= 600 * ep; e.Rap *= 1 + 0.2 * ep; e.VO2 += 200 * ep;
   // dopamine mcg/kg/min: dopaminergic (<3), beta1 (3-10), alpha1 (>10)
   const dp = p.dopa;
-  e.LV_Ees *= 1 + 0.035 * Math.min(dp, 12); e.RV_Ees *= 1 + 0.035 * Math.min(dp, 12); e.HR += 1.8 * dp;
+  e.LV_Ees *= 1 + 0.02 * Math.min(dp, 12); e.RV_Ees *= 1 + 0.02 * Math.min(dp, 12); e.HR += 0.8 * dp;
   e.Ras *= (1 - 0.03 * Math.min(dp, 3)) * (1 + 0.06 * Math.max(0, dp - 8)); e.V0sv -= 25 * Math.max(0, dp - 5);
   // vasopressin U/min: V1 vasoconstriction, no inotropy or chronotropy, relatively spares pulmonary bed
   const vp = p.vaso;
   e.Ras *= 1 + 12 * vp; e.V0sv -= 3000 * vp;
   // phenylephrine mcg/kg/min: pure alpha1
   const ph = p.phenyl;
-  e.Ras *= 1 + 0.5 * ph; e.V0sv -= 150 * ph; e.Rap *= 1 + 0.15 * ph;
+  e.Ras *= 1 + 0.8 * ph; e.V0sv -= 150 * ph; e.Rap *= 1 + 0.15 * ph;
   // ACE inhibitor / ARB (fraction of target dose): arteriolar + mild venous dilation via angiotensin II blockade
   const ac = p.acei;
   e.Ras *= 1 - 0.2 * ac; e.V0sv += 150 * ac; e.Rap *= 1 - 0.05 * ac;
@@ -597,7 +675,7 @@ class Sim {
   }
   setMany(o) { for (const k in o) this.set(k, o[k]); }
   reset() {
-    this.bx = 0; this.refresh();
+    this.bx = 0; this.esvS = null; this.refresh();
     const e = this.e;
     // initial guess, then scale venous to match total volume
     const y = [55, 110, 55, 125, e.V0sa + e.Cas * 92, 0, e.V0pa + e.Cap * 15, e.V0pv + e.Cpv * 8];
@@ -688,6 +766,7 @@ class Sim {
     b.RAP = a.RAsum / T; b.LAP = a.LAsum / T; b.LAv = a.LAmax;
     b.LVSP = a.LVPmax; b.LVEDP = a.LVEDP; b.LVEDV = a.EDV; b.LVESV = a.LVVmin;
     b.SV = a.EDV - a.LVVmin; b.EF = b.SV / a.EDV;
+    if (isFinite(a.LVVmin) && a.LVVmin < 1e8) this.esvS = this.esvS == null ? a.LVVmin : 0.7 * this.esvS + 0.3 * a.LVVmin;
     b.RVSP = a.RVPmax; b.RVEDP = a.RVEDP; b.RVEDV = a.RVEDV; b.RVESV = a.RVVmin; b.RVSV = a.RVEDV - a.RVVmin; b.RVEF = b.RVSV / a.RVEDV;
     b.LAVmax = a.LAVmax; b.LAVmin = a.LAVmin;
     b.CO = a.Qsys / T * 0.06; b.Qp = a.Qpul / T * 0.06; b.Qs = b.CO;
@@ -886,7 +965,7 @@ class Sim {
     // ---- flows (mL/s)
     let Rvs = e.Rvs;
     if (this.occl) { const s = t - this.occl.t0; const f = s < 0.6 ? s / 0.6 : s < 5 ? 1 : s < 5.6 ? 1 - (s - 5) / 0.6 : 0; Rvs *= 1 + 12 * f; if (s > 6) this.occl = null; }
-    const Qmv = orifice(P.LA - P.LV, 0.003, e.mv_f, e.mv_r);
+    const Qmv = orifice(P.LA - P.LV, 0.003, e.mv_f, e.mv_r + (e.fmr > 0 && this.esvS != null ? e.fmr * Math.max(0, this.esvS - e.fmrV) / 100 : 0));
     const Qav = orifice(P.LV - P.SA, e.Rcs, e.av_f, e.av_r);
     const Qsys = (P.SA - P.SV) / e.Ras;
     const Qvs = (P.SV - P.RA) / Rvs;
@@ -1209,7 +1288,7 @@ const wV = (o = {}) => Object.assign({ type: 'wave', title: 'Ventricular volumes
 const wF = (o = {}) => Object.assign({ type: 'wave', title: 'Mitral and aortic flow', sig: ['Qmv', 'Qav'], yl: 'mL/s', ymax: 400 }, o);
 const ecg = (o = {}) => Object.assign({ type: 'wave', title: 'ECG', sig: ['ECG'], ymin: -0.6, ymax: 1.4, fixed: true, h: 120, wide: true }, o);
 const HEMO = ['BP', 'MAP', 'HR', 'CO', 'SV', 'EF', 'LVEDP', 'LAP'];
-const HF_BASE = { LV_Ees: 0.9, LV_V0: 45, LV_k: 0.018, dV: 500, HR: 85 };
+const HF_BASE = { LV_Ees: 0.9, LV_V0: 45, LV_k: 0.018, dV: 500, HR: 85, Rap: 0.15 };
 
 const SECTIONS = [
 // ---------------- lab
@@ -1447,11 +1526,11 @@ const SECTIONS = [
   lede: 'A dilated, weakly contracting LV: the ESPVR is shallow and shifted right. The heart compensates with volume and a large end-diastolic volume, at the price of congestion.',
   preset: HF_BASE, fx: true, ctrls: ['LV_Ees', 'dV', 'Ras', 'acei', 'arni', 'snp', 'dobu'],
   panels: [pvLV(), wL(), wR({ wide: true, h: 180 })],
-  ro: ['BP', 'CO', 'SV', 'EF', 'LVEDV', 'LVEDP', 'LAP', 'mPAP', 'EaEes'],
+  ro: ['BP', 'CO', 'SV', 'fwdSV', 'MRF', 'EF', 'LVEDV', 'LVEDP', 'LAP', 'mPAP', 'EaEes'],
   tries: [
     { l: 'Diuresis 500 mL', set: { dV: 0 }, w: 'Filling pressures fall a lot; stroke volume falls only a little because the heart sits on the flat part of its Starling curve.' },
-    { l: 'Afterload reduction (nitroprusside)', set: { snp: 1 }, w: 'Lower Ea lets the weak LV eject more: SV rises, LVEDP falls, pressure falls only modestly.' },
-    { l: 'ACE inhibitor/ARB, target dose', set: { acei: 1 }, w: 'Oral afterload reduction: SVR falls about 20%, stroke volume rises and filling pressures fall, with a modest drop in pressure.' },
+    { l: 'Afterload reduction (nitroprusside)', set: { snp: 1 }, w: 'Lower Ea lets the weak LV eject more easily and shrink: less blood leaks back through the dilated mitral valve, so forward stroke volume and cardiac output rise, LVEDP falls, and pressure falls only modestly.' },
+    { l: 'ACE inhibitor/ARB, target dose', set: { acei: 1 }, w: 'Oral afterload reduction: SVR falls about 20%, functional MR shrinks so forward output rises, and filling pressures fall, with a modest drop in pressure.' },
     { l: 'ARNI, target dose', set: { arni: 1 }, w: 'Neprilysin inhibition adds venodilation to the ARB effect: filling pressures fall further than with an ACE inhibitor/ARB.' },
     { l: 'Inotrope', set: { dobu: 5 }, w: 'Higher Ees raises SV and lowers ESV, with a heart-rate and O₂ cost.' },
     { l: 'Decompensation (+800 mL)', set: { dV: 1300 }, w: 'LA and PA pressures climb into the pulmonary oedema range with little gain in output.' },
@@ -1897,6 +1976,7 @@ const CTL = {
   av_r: ['Aortic regurgitant orifice', 'cm²', 0, 0.8, 0.01, 1, 2, 'Severe AR EROA ≥ 0.3 cm².'],
   mv_f: ['Mitral valve area', 'cm²', 0.4, 6, 0.05, 1, 2, 'Severe MS ≤ 1.5 cm².'],
   mv_r: ['Mitral regurgitant orifice', 'cm²', 0, 0.8, 0.01, 1, 2, 'Severe primary MR EROA ≥ 0.4 cm².'],
+  fmr: ['Functional MR (per 100 mL LV ESV above 120 mL)', 'cm²', 0, 1.5, 0.05, 1, 2, 'Extra regurgitant orifice from LV dilation and leaflet tethering. It grows and shrinks with the ventricle; 0 turns it off.'],
   tv_f: ['Tricuspid valve area', 'cm²', 0.5, 8, 0.1, 1, 1, ''],
   tv_r: ['Tricuspid regurgitant orifice', 'cm²', 0, 1.2, 0.01, 1, 2, ''],
   pv_f: ['Pulmonic valve area', 'cm²', 0.3, 4, 0.05, 1, 2, ''],
@@ -2128,6 +2208,7 @@ const BASIC_CTL = new Set(['HR', 'rhythm', 'LV_Ees', 'LV_V0', 'LV_k', 'LV_tau', 
 function setMode(adv) {
   ADV = !!adv; try { localStorage.setItem('circulus-mode', ADV ? 'adv' : 'basic'); } catch (e) {}
   document.body.classList.toggle('adv', ADV);
+  const pc = document.getElementById('predon'); if (pc) pc.checked = predOn();
   document.querySelectorAll('[data-mode]').forEach(b => { const on = (b.dataset.mode === 'adv') === ADV; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
   if (!ADV && S.labView && ADV_MARK[S.labView.open]) S.labView.open = null;
   if (!ADV && S.labView && S.labView.pva) S.labView.pva = 0;
@@ -2232,6 +2313,7 @@ function pvAnnotate(c, f, b, e, s, W, H) {
     c.fillStyle = on ? lv : '#fff'; c.strokeStyle = on ? lv : ink; c.lineWidth = 1.5;
     c.beginPath(); c.arc(x, y, on ? 6 : 5, 0, 7); c.fill(); c.stroke();
     c.fillStyle = on ? '#fff' : ink; c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = '700 9px "Red Hat Text", system-ui, sans-serif'; c.fillText(on ? '−' : '+', x, y + 0.5);
+    if (!S.labView.lbl) continue;   // labels switched off: keep the clickable markers, drop the text
     c.font = '600 11px "Red Hat Text", system-ui, sans-serif'; c.fillStyle = ink; c.textBaseline = 'middle';
     if (pos === 'right-down') { c.textAlign = 'left'; c.fillText(txt, x + 10, y + 12); }
     else if (pos === 'left-up') { c.textAlign = 'right'; c.fillText(txt, x - 10, y - 12); }
@@ -2690,7 +2772,7 @@ function ctlHTML(k, g) {
   const [l, u, mn, mx, st, sc, d, h, opts] = c, id = 'c_' + (g ? 'g_' : '') + k;
   const v = g ? G[k] : sim.p[k], dg = g ? 1 : '';
   if (opts) return `<div class="ctl"><span class="lbl" id="${id}">${esc(l)}</span><div class="seg" role="group" aria-labelledby="${id}">${opts.map((o, i) => `<button type="button" data-k="${k}" data-g="${dg}" data-v="${i}" class="${+v === i ? 'on' : ''}">${esc(o)}</button>`).join('')}</div></div>`;
-  return `<div class="ctl"><div class="cl"><label for="${id}">${esc(l)}</label><span class="nb"><input type="number" class="num" data-k="${k}" data-g="${dg}" min="${+(mn * sc).toFixed(6)}" max="${+(mx * sc).toFixed(6)}" step="any" value="${+(v * sc).toFixed(d)}" aria-label="${esc(l)} value">${u ? `<small>${esc(u)}</small>` : ''}</span></div>
+  return `<div class="ctl"><div class="cl"><label for="${id}">${esc(l)}${!g && VALID[k] ? ` <span class="vbadge" title="${esc(VALID[k])}">validated</span>` : ''}</label><span class="nb"><input type="number" class="num" data-k="${k}" data-g="${dg}" min="${+(mn * sc).toFixed(6)}" max="${+(mx * sc).toFixed(6)}" step="any" value="${+(v * sc).toFixed(d)}" aria-label="${esc(l)} value">${u ? `<small>${esc(u)}</small>` : ''}</span></div>
   <input type="range" id="${id}" data-k="${k}" data-g="${dg}" min="${mn * sc}" max="${mx * sc}" step="${st * sc}" value="${v * sc}">${!g && FXK[k] ? `<p class="fxv" data-fx="${k}" hidden></p>` : ''}${h ? `<p class="help">${esc(h)}</p>` : ''}</div>`;
 }
 // ---------- drug effects on settings
@@ -2745,7 +2827,7 @@ const GROUPS = [
   ['Model parameters: targets and reflexes', ['tEF', 'tEFlever', 'tMVO2', 'tMVO2lever', 'tSI', 'tSIlever', 'tCI', 'tCIlever', 'baro']],
   ['Model parameters: heart', ['HR', 'rhythm', 'PRi', 'ecgV', 'LV_Ees', 'LV_V0', 'LV_tau', 'LV_k', 'RV_Ees', 'RV_V0', 'RV_tau', 'RV_k', 'LA_Ees', 'LA_k', 'RA_Ees']],
   ['Model parameters: circulation', ['dV', 'Ras', 'Cas', 'Rcs', 'V0sv', 'Csv', 'Rap', 'Cap']],
-  ['Model parameters: valves and shunts', ['av_f', 'av_r', 'mv_f', 'mv_r', 'tv_f', 'tv_r', 'pv_f', 'pv_r', 'asd', 'vsd']],
+  ['Model parameters: valves and shunts', ['av_f', 'av_r', 'mv_f', 'mv_r', 'fmr', 'tv_f', 'tv_r', 'pv_f', 'pv_r', 'asd', 'vsd']],
   ['Model parameters: pericardium and breathing', ['peri', 'eff', 'periK', 'periV0', 'resp', 'RRresp', 'peep', 'Pplat']],
   ['Model parameters: inotropes and vasopressors', ['ne', 'epi', 'vaso', 'phenyl', 'dopa', 'dobu', 'milr', 'mido']],
   ['Model parameters: afterload reduction and other drugs', ['acei', 'arni', 'snp', 'ntg', 'bb', 'ino']],
@@ -2768,19 +2850,22 @@ function render(id) {
   else { sim = new Sim(Object.assign({}, sec.preset || {})); sim.run(sec.settle || 12); }
   if (sec.kind === 'student') newCase(true);
   const grp = GROUPS_NAV.find(g => g[1].includes(sec.id));
-  const panelHTML = (p, i) => `<figure class="panel ${p.wide ? 'wide' : ''} ${p.type === 'monitor' ? 'mon' : ''}" style="--h:${p.h || 300}px"><figcaption>${esc(p.title || '')}${legend(p)}</figcaption><div class="fig"><canvas id="cv${i}" role="img" aria-label="${esc(p.title || p.type)}"></canvas></div></figure>`;
-  const panels = sec.panels.map(panelHTML).join('');
+  const panelHTML = (p, i) => `<figure class="panel ${p.wide ? 'wide' : ''} ${p.type === 'monitor' ? 'mon' : ''}" style="--h:${p.h || 300}px"><figcaption>${esc(p.title || '')}${legend(p)}${p.lab ? pvSetHTML() : ''}</figcaption><div class="fig"><canvas id="cv${i}" role="img" aria-label="${esc(p.title || p.type)}"></canvas></div></figure>`;
+  // the generic left-heart pressure and ventricular volume traces sit behind a Waveforms view instead of showing by default
+  const autoW = p => p.type === 'wave' && (p.title === 'Left heart pressures' || p.title === 'Ventricular volumes');
+  const panels = sec.panels.map((p, i) => autoW(p) ? '' : panelHTML(p, i)).join('');
+  const wpanels = sec.kind === 'lab' ? '' : sec.panels.map((p, i) => autoW(p) ? panelHTML(p, i) : '').join('');
   const ctls = (sec.ctrls || []).map(k => ctlHTML(k)).join('') + (sec.gctrls || []).map(k => ctlHTML(k, true)).join('');
-  if (sec.kind === 'lab') { S.labView = { LV: 1, RV: 0, LA: 0, RA: 0, espvr: 1, edpvr: 1, ea: 1, pva: 0, ghost: 1, ann: 1, open: null, view: 'pv' }; S.tab = 0; S.presetName = window.LAB_PRESETS[0][0]; S.base = Object.assign({}, DEFAULTS, window.LAB_PRESETS[0][1]); }
+  if (sec.kind === 'lab') { S.labView = { LV: 1, RV: 0, LA: 0, RA: 0, espvr: 1, edpvr: 1, ea: 1, pva: 0, ghost: 1, ann: 1, lbl: 1, open: null, view: 'pv' }; S.tab = 0; S.presetName = window.LAB_PRESETS[0][0]; S.base = Object.assign({}, DEFAULTS, window.LAB_PRESETS[0][1]); }
   const acts = (sec.acts || []).map(a => `<button class="act" data-a="${a}">${esc(ACT[a][0])}</button>`).join('');
   const all = sec.kind === 'gas' || sec.kind === 'student' ? '' : `<details class="all"><summary>All model parameters</summary>${GROUPS.map(g => `<h4>${esc(g[0].replace('Model parameters: ', ''))}</h4>` + g[1].map(k => ctlHTML(k)).join('')).join('')}</details>`;
   main.innerHTML = `<article class="lesson">
   ${sec.kind === 'lab' ? '' : `<header class="lhead"><p class="crumb">${esc(grp ? grp[0] : '')}</p><h1>${esc(sec.t)}</h1>${sec.lede ? `<p class="lede">${sec.lede}</p>` : ''}</header>`}
   ${sec.kind === 'student' ? studentHTML() : ''}
-  ${sec.kind === 'lab' ? `<div class="work labw">${vbarHTML()}<div class="lableft"><div class="changes" id="changes" aria-live="polite"></div>${labTipHTML()}<div class="seg viewsw" role="group" aria-label="Main view"><span class="lbl">View</span><button type="button" data-lv="pv" class="on" aria-pressed="true">PV loop</button><button type="button" data-lv="circ" aria-pressed="false">Circulation</button></div><div id="pvwrap"><div class="pins"></div>${panelHTML(sec.panels[0], 0)}<div class="pvann" id="pvann" role="group" aria-label="PV loop landmarks"></div></div><div id="circwrap" hidden>${circModelHTML(true)}</div><div class="mini" id="mini" aria-live="off"></div><p class="tgtline" id="tgtline" hidden></p><div class="drugfx" id="drugfx"></div><div class="drugfx strat" id="strat" hidden></div></div>${labAside()}</div><div class="plots below">${sec.panels.slice(1).map((p, i) => panelHTML(p, i + 1)).join('')}</div>` : ''}
+  ${sec.kind === 'lab' ? `<div class="work labw">${vbarHTML()}<div class="lableft"><div class="changes" id="changes" aria-live="polite"></div>${labTipHTML()}<div class="seg viewsw" role="group" aria-label="Main view"><span class="lbl">View</span><button type="button" data-lv="pv" class="on" aria-pressed="true">PV loop</button><button type="button" data-lv="circ" aria-pressed="false">Circulation</button><button type="button" data-lv="wave" aria-pressed="false">Waveforms</button><button type="button" data-lv="prof" aria-pressed="false">Profile</button><button type="button" data-lv="guy" aria-pressed="false">Guyton</button></div><div id="pvwrap"><div class="pins"></div>${panelHTML(sec.panels[0], 0)}<div class="pvann" id="pvann" role="group" aria-label="PV loop landmarks"></div></div><div id="circwrap" hidden>${circModelHTML(true)}</div>${profHTML()}${guyHTML()}<div id="wavewrap" class="plots" hidden>${sec.panels.slice(1).map((p, i) => panelHTML(p, i + 1)).join('')}</div><div class="mini" id="mini" aria-live="off"></div><p class="tgtline" id="tgtline" hidden></p><div class="drugfx" id="drugfx"></div><div class="drugfx strat" id="strat" hidden></div><div id="labwhy" hidden></div></div>${labAside()}</div>` : ''}
   ${!sec.kind && !sec.panels.some(p => p.type === 'monitor') ? vbarHTML() : ''}
   <div class="work" ${sec.kind === 'lab' ? 'hidden' : ''}>
-    <div class="plots">${sec.kind === 'lab' ? '' : panels}</div>
+    <div class="plotcol">${wpanels ? `<div class="seg viewsw" role="group" aria-label="Main view"><span class="lbl">View</span><button type="button" data-lsv="main" class="on" aria-pressed="true">Main</button><button type="button" data-lsv="wave" aria-pressed="false">Waveforms</button></div>` : ''}<div class="plots" id="mainplots">${sec.kind === 'lab' ? '' : panels}</div>${wpanels ? `<div class="plots" id="waveplots" hidden>${wpanels}</div>` : ''}</div>
     <aside class="ctrl" aria-label="Controls" ${sec.kind === 'student' ? 'hidden' : ''}>
       ${ctls ? `<h2>Adjust</h2>${ctls}` : ''}
       ${acts ? `<div class="acts">${acts}</div>` : ''}
@@ -2789,9 +2874,9 @@ function render(id) {
     </aside>
   </div>
   ${sec.fx ? '<div class="drugfx" id="drugfx"></div>' : ''}
-  <section class="ro" id="ro" aria-live="off"></section>
+  <details class="rowrap"><summary><span class="rosh">Show all values</span><span class="rohd">Hide all values</span></summary><section class="ro" id="ro" aria-live="off"></section></details>
   <div class="learn">
-    <section class="try"><h2>Try this</h2><p class="hint">${sec.kind === 'gas' ? 'Each button starts from the lesson\'s baseline and makes one change.' : 'Each button saves the current loop as a dashed reference, returns to the lesson\'s baseline, then makes the change.'}</p><div class="tries">${(sec.tries || []).map((t, i) => `<button class="tbtn" data-t="${i}"><b>${esc(t.l)}</b><span>${esc(t.n || '')}</span></button>`).join('')}</div><p id="note" class="note" hidden></p></section>
+    <section class="try"><h2>Try this</h2>${sec.kind === 'gas' || !(sec.tries || []).length ? '' : predToggleHTML()}<p class="hint">${sec.kind === 'gas' ? 'Each button starts from the lesson\'s baseline and makes one change.' : 'Each button saves the current loop as a dashed reference, returns to the lesson\'s baseline, then makes the change.'}</p><div class="tries">${(sec.tries || []).map((t, i) => `<button class="tbtn" data-t="${i}"><b>${esc(t.l)}</b><span>${esc(t.n || '')}</span></button>`).join('')}</div><div id="note" class="note" hidden></div></section>
     <section class="keys"><h2>Key points</h2><ul>${(sec.keys || []).map(k => `<li>${k}</li>`).join('')}</ul></section>
   </div>
   <nav class="pn">${pnLinks()}</nav>
@@ -2809,11 +2894,18 @@ function render(id) {
 function labBar() {
   const v = S.labView, tg = (k, n) => `<button class="tg ${v[k] ? 'on' : ''}" data-lt="${k}" aria-pressed="${!!v[k]}">${n}</button>`;
   return `<div class="labbar"><label class="lp">Start from <select id="labpreset">${window.LAB_PRESETS.map(p => `<option>${esc(p[0])}</option>`).join('')}</select></label>
-  <span class="tgs"><span class="tl">Loops</span>${tg('LV', 'LV')}${tg('RV', 'RV')}${tg('LA', 'LA')}${tg('RA', 'RA')}</span>
-  <span class="tgs"><span class="tl">Lines</span>${tg('espvr', 'ESPVR')}${tg('edpvr', 'EDPVR')}${tg('ea', 'Ea')}<span class="adv-only">${tg('pva', 'PVA shading')}</span>${tg('ann', 'Landmarks')}</span>
-  <span class="tgs">${tg('ghost', 'Ghost previous loop')}<button class="tg" id="labreset" title="Return to the chosen starting patient">Reset all</button></span>
+  <span class="tgs"><button class="tg" id="labreset" title="Return to the chosen starting patient">Reset all</button></span>
   <span class="tgs"><button class="tg" id="labundo" disabled title="Nothing to undo yet">↶ Undo</button><button class="tg" id="labshare" title="Copy a link that opens the lab with this exact patient">Share patient</button><button class="tg" id="labimg" title="Download the PV loop as a PNG image">Save loop image</button></span>
   <div class="sharebox" id="sharebox" hidden><label>Copy this link<input type="text" readonly></label></div></div>`;
+}
+// loop display settings: a cog in the PV loop panel's top-right corner opens the Loops / Lines / ghost toggles
+function pvSetHTML() {
+  if (!S.labView) return '';
+  const v = S.labView, tg = (k, n) => `<button type="button" class="tg ${v[k] ? 'on' : ''}" data-lt="${k}" aria-pressed="${!!v[k]}">${n}</button>`;
+  return `<details class="pvset"><summary aria-label="Loop display settings" title="Loop display settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></summary><div class="pvpop" role="group" aria-label="Loop display settings">
+  <div class="tgs"><span class="tl">Loops</span>${tg('LV', 'LV')}${tg('RV', 'RV')}${tg('LA', 'LA')}${tg('RA', 'RA')}</div>
+  <div class="tgs"><span class="tl">Lines</span>${tg('espvr', 'ESPVR')}${tg('edpvr', 'EDPVR')}${tg('ea', 'Ea')}<span class="adv-only">${tg('pva', 'PVA shading')}</span>${tg('ann', 'Landmarks')}</div>
+  <div class="tgs"><span class="tl">Show</span>${tg('lbl', 'Labels on loop')}${tg('ghost', 'Ghost previous loop')}</div></div></details>`;
 }
 function labAside() {
   return `<aside class="ctrl lab" aria-label="Edit variables">${labBar()}<h2>Edit variables</h2><p class="help">Drag a slider or type an exact value and press Enter.</p>
@@ -2845,7 +2937,7 @@ function tgtText(s) {
 const VITALS = [['BP', 'Arterial pressure', '#ff6b6b'], ['MAP', 'MAP', '#ff6b6b'], ['HR', 'Heart rate', '#4ade80'], ['CO', 'Cardiac output', '#f1f3f5'], ['CI', 'Cardiac index', '#f1f3f5'], ['RAP', 'CVP', '#60b8ff'], ['LAP', 'PCWP', '#ffb366'], ['PA', 'PA pressure', '#ffd54a'], ['SVR', 'SVR', '#f1f3f5'], ['SvO2', 'SvO₂', '#6ae6f2']];
 const BPN = { SBP: [90, 140], DBP: [60, 90] };
 function vbarHTML() {
-  return `<div class="vbar" id="vbar" role="group" aria-label="Vital signs">${VITALS.map(([k, l, col]) => `<div class="v${AO(ADV_VITALS[k])}" style="--vc:${col}" title="${esc(DEF[k] || '')}"><span class="vl">${esc(l)}</span><span class="vv" data-v="${k}">–</span><span class="vu">${esc(RO[k][1])}</span></div>`).join('')}</div>`;
+  return `<div class="vbar" id="vbar" role="group" aria-label="Vital signs">${VITALS.map(([k, l, col]) => `<div class="v${AO(ADV_VITALS[k])}" style="--vc:${col}" data-phys="${k}" title="${esc(DEF[k] || '')}"><span class="vl">${esc(l)}</span><span class="vv" data-v="${k}">–</span><span class="vu">${esc(RO[k][1])}</span></div>`).join('')}</div>`;
 }
 function updateVbar() {
   const el = $('#vbar'), b = AB(); if (!el || !b) return;
@@ -2864,10 +2956,10 @@ function updateMini() {
   const el = $('#mini'), b = AB(); if (!el || !b) return;
   const tl = $('#tgtline'); if (tl) { const t = tgtText(sim); tl.hidden = t === 'Off'; const h = '<b>Targets:</b> ' + esc(t); if (tl.innerHTML !== h) tl.innerHTML = h; tl.classList.toggle('bad', t.includes('out of reach')); }
   el.innerHTML = MINI.map(k => { const r = RO[k], v = r[4] ? r[4](b, sim) : b[k], bad = r[3] && typeof v === 'number' && isFinite(v) && (v < r[3][0] || v > r[3][1]);
-    return `<div class="m ${bad ? 'bad' : ''}${AO(ADV_MINI[k])}" title="${esc(DEF[k] || '')}"><span>${esc(MINIL[k])}</span><b>${esc(typeof v === 'string' ? v : fmt(v, r[2]))}</b><small>${esc(r[1])}</small></div>`; }).join('');
+    return `<div class="m ${bad ? 'bad' : ''}${AO(ADV_MINI[k])}" data-phys="${k}"${ADV ? '' : ` title="${esc(DEF[k] || '')}"`}><span>${esc(MINIL[k])}</span><b>${esc(typeof v === 'string' ? v : fmt(v, r[2]))}</b><small>${esc(r[1])}</small></div>`; }).join('');
 }
 function updateRO(force) {
-  if (sec && sec.kind === 'lab') { updateMini(); syncPvann(); }
+  if (sec && sec.kind === 'lab') { updateMini(); syncPvann(); chalTick(); }
   updateVbar();
   if (sim) updateFx();
   const el = $('#ro'); if (!el || !sec) return;
@@ -2879,10 +2971,10 @@ function updateRO(force) {
     rows = (sec.ro || []).map(k => {
       const r = RO[k]; const v = r[4] ? r[4](b, sim) : b[k];
       const bad = r[3] && typeof v === 'number' && isFinite(v) ? (v < r[3][0] ? 'lo' : v > r[3][1] ? 'hi' : '') : '';
-      return { l: r[0], v: typeof v === 'string' ? v : fmt(v, r[2]), u: r[1], bad, n: r[3] ? (r[3][1] === 999 ? '≥ ' + r[3][0] : r[3][0] + '–' + r[3][1]) : '' };
+      return { k, l: r[0], v: typeof v === 'string' ? v : fmt(v, r[2]), u: r[1], bad, n: r[3] ? (r[3][1] === 999 ? '≥ ' + r[3][0] : r[3][0] + '–' + r[3][1]) : '' };
     });
   }
-  el.innerHTML = rows.map(r => `<div class="r ${r.bad ? 'bad ' + r.bad : ''}"><span class="rl">${esc(r.l)}</span><span class="rv">${esc(r.v)}<small>${esc(r.u)}</small>${r.bad === 'hi' ? '<em>▲</em>' : r.bad === 'lo' ? '<em>▼</em>' : r.bad === true ? '<em>!</em>' : ''}</span>${r.n ? `<span class="rn">normal ${esc(r.n)}</span>` : ''}</div>`).join('');
+  el.innerHTML = rows.map(r => `<div class="r ${r.bad ? 'bad ' + r.bad : ''}"${r.k ? ` data-phys="${r.k}"` : ''}><span class="rl">${esc(r.l)}</span><span class="rv">${esc(r.v)}<small>${esc(r.u)}</small>${r.bad === 'hi' ? '<em>▲</em>' : r.bad === 'lo' ? '<em>▼</em>' : r.bad === true ? '<em>!</em>' : ''}</span>${r.n ? `<span class="rn">normal ${esc(r.n)}</span>` : ''}</div>`).join('');
 }
 
 // ---------- student monitor
@@ -2911,12 +3003,13 @@ function newCase(silent) {
 function scoreText() { const s = S.score || [0, 0]; return s[1] ? `${s[0]} of ${s[1]} correct` : ''; }
 
 // ---------- PV loop lab
-const LAB_TABS = [['Build patient', 'build'], ['Treat and compare', 'treat'], ['Heart', 1], ['Circulation', 2], ['Pressors and inotropes', 5], ['Vasodilators and other drugs', 6], ['Targets', 0, 1], ['Valves and shunts', 3, 1], ['Pericardium and breathing', 4, 1], ['Devices and O₂', 7, 1]];
+const LAB_TABS = [['Build patient', 'build'], ['Treat and compare', 'treat'], ['Challenges', 'chal'], ['Heart', 1], ['Circulation', 2], ['Pressors and inotropes', 5], ['Vasodilators and other drugs', 6], ['Targets', 0, 1], ['Valves and shunts', 3, 1], ['Pericardium and breathing', 4, 1], ['Devices and O₂', 7, 1]];
 function renderLabTab() {
   const el = $('#tabbody'); if (!el) return;
   const g = LAB_TABS[S.tab][1];
   if (g === 'build') el.innerHTML = buildHTML();
   else if (g === 'treat') el.innerHTML = treatHTML();
+  else if (g === 'chal') el.innerHTML = chalHTML();
   else { const ks = GROUPS[g][1], nAdv = ks.filter(k => !BASIC_CTL.has(k)).length;
     el.innerHTML = ks.map(k => BASIC_CTL.has(k) ? ctlHTML(k) : `<div class="adv-only">${ctlHTML(k)}</div>`).join('') +
       (nAdv ? `<p class="help basic-only moreadv">${nAdv} more setting${nAdv > 1 ? 's' : ''} in this tab. <button type="button" class="linkbtn" data-mode="adv">Show Advanced</button></p>` : ''); }
@@ -2924,7 +3017,7 @@ function renderLabTab() {
 }
 function loadLabPreset(name) {
   const pr = (window.LAB_PRESETS.find(p => p[0] === name) || window.LAB_PRESETS[0]);
-  S.presetName = pr[0]; S.base = Object.assign({}, DEFAULTS, pr[1]); S.bv = null; S.bstat = ''; S.strat = null; renderStrat();
+  S.chal = null; S.presetName = pr[0]; S.base = Object.assign({}, DEFAULTS, pr[1]); S.bv = null; S.bstat = ''; S.strat = null; renderStrat();
   sim = new Sim(Object.assign({}, pr[1])); sim.run(12);
   const sel = $('#labpreset'); if (sel) sel.value = pr[0];
   renderLabTab(); updateChanges(); updateRO();
@@ -2998,7 +3091,7 @@ function toast(msg) {
 const tipSeen = () => { try { return localStorage.getItem('circulus-tip-lab') === '1'; } catch (e) { return false; } };
 function labTipHTML() {
   if (tipSeen()) return '';
-  return `<div class="labtip" id="labtip" role="note"><b>New to the lab?</b><ol><li>Change anything on the right; the previous loop stays as a dashed ghost.</li><li><b>Build patient</b> turns bedside numbers or a pasted echo report into a matching patient.</li><li><b>Treat and compare</b> tries treatments side by side.</li><li>Switch the view to <b>Circulation</b> to see the whole circuit. <b>Undo</b> (Ctrl/⌘+Z) steps back.</li></ol><button type="button" class="tg sm" id="tipok">Got it</button></div>`;
+  return `<div class="labtip" id="labtip" role="note"><b>New to the lab?</b><ol><li>Change anything on the right; the previous loop stays as a dashed ghost.</li><li><b>Build patient</b> turns bedside numbers or a pasted echo report into a matching patient.</li><li><b>Treat and compare</b> tries treatments side by side.</li><li>Switch the view to <b>Circulation</b> for the whole circuit, <b>Profile</b> for warm/cold and wet/dry, or <b>Guyton</b> for venous return. <b>Challenges</b> has six cases to treat. <b>Undo</b> (Ctrl/⌘+Z) steps back.</li></ol><button type="button" class="tg sm" id="tipok">Got it</button></div>`;
 }
 
 // ---------- patient builder and treatment comparison
@@ -3218,7 +3311,7 @@ function buildHTML() {
   return `<div class="build">
   <div class="bpaste"><label for="bptxt" class="lbl">Paste values or an echo report</label><textarea id="bptxt" rows="3" placeholder="Paste a TTE report, cath report, monitor values or a note, e.g. BP 98/62, HR 104, RA 14, CO 3.6, SVR 1450, LVEF 20%">${esc(S.bptxt || '')}</textarea><button type="button" class="tg" id="bppaste">Fill boxes from text</button>${S.bpnote ? `<p class="bstat">${S.bpnote}</p>` : ''}</div>
   <div class="seg" role="group" aria-label="Calculated value"><span class="lbl">Calculate</span><button type="button" data-bmode="SVR" class="${v.mode === 'SVR' ? 'on' : ''}">SVR</button><button type="button" data-bmode="MAP" class="${v.mode === 'MAP' ? 'on' : ''}">MAP</button></div>
-  <div class="bgrid">${BF.map(([k, l, u, mn, mx, d, opt]) => { const c = bCalc(k), ao = ['PCWP', 'PASP', 'TAPSE', 'MVO2'].includes(k) && (v[k] === '' || v[k] == null); return `<label class="bf ${c ? 'calc' : ''}${AO(ao)}" data-bf="${k}"><span>${esc(l)}<em class="bfn">${c ? ' (calculated)' : opt ? ' (optional)' : ''}</em></span><span class="nb"><input type="number" class="bpin" data-b="${k}" min="${mn}" max="${mx}" step="any" value="${v[k] === '' || v[k] == null ? '' : +(+v[k]).toFixed(d)}" ${opt ? 'placeholder="auto"' : ''} ${c ? 'readonly tabindex="-1"' : ''}><small>${esc(u)}</small></span></label>`; }).join('')}</div>
+  <div class="bgrid">${BF.map(([k, l, u, mn, mx, d, opt]) => { const c = bCalc(k), ao = ['PCWP', 'PASP', 'TAPSE', 'MVO2'].includes(k) && (v[k] === '' || v[k] == null); return `<label class="bf ${c ? 'calc' : ''}${AO(ao)}" data-bf="${k}" data-phys="${k}"><span>${esc(l)}<em class="bfn">${c ? ' (calculated)' : opt ? ' (optional)' : ''}</em></span><span class="nb"><input type="number" class="bpin" data-b="${k}" min="${mn}" max="${mx}" step="any" value="${v[k] === '' || v[k] == null ? '' : +(+v[k]).toFixed(d)}" ${opt ? 'placeholder="auto"' : ''} ${c ? 'readonly tabindex="-1"' : ''}><small>${esc(u)}</small></span></label>`; }).join('')}</div>
   <div class="bq"><span class="lbl">Quick fill</span>${BQUICK.map((q, i) => `<button type="button" class="tg" data-bq="${i}">${esc(q[0])}</button>`).join('')}</div>
   <button class="act" id="bpbuild">Build this patient</button>
   <div class="bstat" id="bpstat">${S.bstat || ''}</div>
@@ -3307,6 +3400,7 @@ function echoCompareHTML(E, m) {
 }
 let stratJob = 0;
 function compareStrats() {
+  if (sim) S.stratSig = JSON.stringify(sim.p);
   const job = ++stratJob, base = Object.assign({}, sim.p, { tCVP: 0, tCI: 0, tSI: 0, tEF: 0, tMVO2: 0, tMAP: 0 }), st = S;
   const rows = [['Current', '', base]].concat(STRATS.map(([n, cls, a]) => { const p = Object.assign({}, base); if (a.add) for (const k in a.add) p[k] = base[k] + a.add[k]; if (a.set) Object.assign(p, a.set); return [n, cls, p]; }));
   S.strat = rows.map(r => ({ n: r[0], cls: r[1], b: null })); renderStrat();
@@ -3332,10 +3426,12 @@ function renderStrat() {
 }
 function applyStrat(i) {
   const [n, , a] = STRATS[i]; recordUndo();
+  const p0 = Object.assign({}, sim.p);
   pinLoop('Before: ' + n);
   if (a.add) for (const k in a.add) setP(k, sim.p[k] + a.add[k]);
   if (a.set) for (const k in a.set) setP(k, a.set[k]);
   S.lastEdit = performance.now();
+  whyLab(p0, n);
 }
 
 // visual cues on the home picture: arteriole tone (SVR), arterial back-up (SVR), vein distension (CVP)
@@ -3387,7 +3483,7 @@ function mathActPlot() {
     <figcaption>The activation function e(t) the model uses, plotted from the same code at 72 bpm. A slower τ leaves the ventricle partly “on” well into diastole.</figcaption></figure>`;
 }
 function mathParamTable() {
-  const keys = ['HR', 'PRi', 'LV_Ees', 'LV_V0', 'LV_k', 'LV_tau', 'RV_Ees', 'RV_V0', 'RV_k', 'RV_tau', 'LA_Ees', 'LA_k', 'RA_Ees', 'Ras', 'Cas', 'Rcs', 'V0sv', 'Csv', 'Rap', 'Cap', 'av_f', 'mv_f', 'tv_f', 'pv_f', 'periV0', 'periK', 'VO2', 'Hb'];
+  const keys = ['HR', 'PRi', 'LV_Ees', 'LV_V0', 'LV_k', 'LV_tau', 'RV_Ees', 'RV_V0', 'RV_k', 'RV_tau', 'LA_Ees', 'LA_k', 'RA_Ees', 'Ras', 'Cas', 'Rcs', 'V0sv', 'Csv', 'Rap', 'Cap', 'av_f', 'mv_f', 'fmr', 'tv_f', 'pv_f', 'periV0', 'periK', 'VO2', 'Hb'];
   const extra = { LV_A: ['LV EDPVR scale (A)', 'mmHg', 1, 2], Rvs: ['Venous return resistance', 'mmHg·s/mL', 1, 3], Rcp: ['Pulmonary characteristic impedance', 'mmHg·s/mL', 1, 3], Cpv: ['Pulmonary venous compliance', 'mL/mmHg', 1, 1], V0sa: ['Systemic arterial unstressed volume', 'mL', 1, 0], V0pa: ['Pulmonary arterial unstressed volume', 'mL', 1, 0], V0pv: ['Pulmonary venous unstressed volume', 'mL', 1, 0], Rvp: ['Pulmonary venous resistance', 'mmHg·s/mL', 1, 3] };
   const row = (l, v, u) => `<tr><th scope="row">${esc(l)}</th><td>${esc(v)}</td><td>${esc(u)}</td></tr>`;
   const rows = keys.filter(k => CTL[k]).map(k => { const c = CTL[k]; return row(c[0], c[8] ? c[8][DEFAULTS[k]] : fmt(DEFAULTS[k] * c[5], c[6]), c[1]); })
@@ -3428,6 +3524,9 @@ function MATH() {
   ${m(r(Q, o('='), fr(r(n(2), i('ΔP')), r(sub(i('R'), i('l')), o('+'), sq(r(sup(sub(i('R'), i('l')), n(2)), o('+'), n(4), i('b'), i('ΔP')))))), 1)}
   <p>Forward flow uses the valve's opening area; backward flow uses its <b>regurgitant orifice area</b> (zero for a competent valve). Stenosis and regurgitation are therefore set by area, in cm², exactly as an echo report describes them. The aortic valve's <i>R</i><sub>l</sub> is the aortic characteristic impedance, so aortic root pressure is the arterial compartment pressure plus <i>R</i><sub>cs</sub>·<i>Q</i><sub>aortic</sub>.</p></section>
 
+  <section id="m-fmr"><h2>Functional mitral regurgitation</h2>
+  <p>A dilated ventricle pulls the papillary muscles apart and tethers the mitral leaflets, so the valve leaks even though the leaflets are normal. The model adds a regurgitant area that grows with LV end-systolic volume: <i>A</i><sub>FMR</sub> = <i>k</i> × max(0, ESV − 120 mL) ÷ 100, with <i>k</i> = 0.4 cm² per 100 mL by default (the Functional MR control; 0 turns it off). ESV is smoothed over a few beats. A normal heart has no functional MR; the heart-failure preset has a regurgitant fraction of about 25%, and anything that shrinks the ventricle (afterload reduction, inotropes, unloading) reduces it, which is part of why vasodilators raise forward output in dilated hearts.</p></section>
+
   <section id="m-vessels"><h2>Blood vessels: Windkessels and stressed volume</h2>
   <p>Each vascular compartment is a capacitor. Only blood above its <b>unstressed volume</b> <i>V</i><sub>0</sub> stretches the wall and creates pressure:</p>
   ${m(r(P, o('='), fr(r(V, o('−'), sub(V, n(0))), i('C')), t(',     '), Q, o('='), fr(r(sub(P, t('upstream')), o('−'), sub(P, t('downstream'))), i('R'))), 1)}
@@ -3465,13 +3564,13 @@ function MATH() {
   <p>Off by default, so each change shows its pure effect. When switched on, a proportional controller with a lag compares MAP with a 95 mmHg set point each beat: the drive <i>x</i> moves 20% of the way toward clamp(1.2·(95 − MAP)/25, −1, 1.5). It then scales heart rate (×(1 + 0.45<i>x</i>)), contractility (×(1 + 0.25<i>x</i>)), relaxation (τ × (1 − 0.15<i>x</i>)), SVR (×(1 + 0.3<i>x</i>)) and venous tone (unstressed volume − 350<i>x</i> mL).</p></section>
 
   <section id="m-drugs"><h2>Drugs</h2>
-  <p>Drugs act on parameters, not on outcomes: each dose multiplies or shifts the settings its receptors would affect, and the haemodynamics follow from the equations above. The effects are teaching approximations, right in direction rather than fitted to trial data. Doses are per unit of the control (for example per μg/kg/min).</p>
+  <p>Drugs act on parameters, not on outcomes: each dose multiplies or shifts the settings its receptors would affect, and the haemodynamics follow from the equations above. The effects are teaching approximations, right in direction rather than fitted to trial data, except that norepinephrine, phenylephrine and dopamine were checked against infusion starts in the VitalDB surgical dataset (phenylephrine and dopamine were recalibrated; see the validated tags on their controls). Doses are per unit of the control (for example per μg/kg/min).</p>
   <div class="scroll"><table class="stt mtab"><thead><tr><th scope="col">Drug</th><th scope="col">Contractility (E<sub>es</sub>)</th><th scope="col">Heart rate</th><th scope="col">SVR</th><th scope="col">Other</th></tr></thead><tbody>
   <tr><th scope="row">Norepinephrine</th><td>×(1 + 0.7d)</td><td>+12d</td><td>×(1 + 2.4d)</td><td>venoconstriction (−700d mL unstressed), PVR ×(1 + 0.4d)</td></tr>
   <tr><th scope="row">Epinephrine</th><td>×(1 + 1.6d)</td><td>+60d</td><td>×(1 − 0.8d + 3.2d²): falls at low dose, rises at high</td><td>faster relaxation, venoconstriction, VO₂ up</td></tr>
-  <tr><th scope="row">Dopamine</th><td>×(1 + 0.035d), up to 12</td><td>+1.8d</td><td>falls below 3, rises above 8</td><td>venoconstriction above 5</td></tr>
+  <tr><th scope="row">Dopamine</th><td>×(1 + 0.02d), up to 12</td><td>+0.8d</td><td>falls below 3, rises above 8</td><td>venoconstriction above 5</td></tr>
   <tr><th scope="row">Vasopressin</th><td>–</td><td>–</td><td>×(1 + 12d)</td><td>venoconstriction; spares the pulmonary bed</td></tr>
-  <tr><th scope="row">Phenylephrine</th><td>–</td><td>–</td><td>×(1 + 0.5d)</td><td>venoconstriction, PVR ×(1 + 0.15d)</td></tr>
+  <tr><th scope="row">Phenylephrine</th><td>–</td><td>–</td><td>×(1 + 0.8d)</td><td>venoconstriction, PVR ×(1 + 0.15d)</td></tr>
   <tr><th scope="row">Midodrine (mg)</th><td>–</td><td>–</td><td>×(1 + 0.025d)</td><td>mild venoconstriction</td></tr>
   <tr><th scope="row">Dobutamine</th><td>×(1 + 0.045d)</td><td>+1.6d</td><td>×(1 − 0.012d)</td><td>faster relaxation, VO₂ up</td></tr>
   <tr><th scope="row">Milrinone</th><td>×(1 + 0.55d)</td><td>+12d</td><td>×(1 − 0.5d)</td><td>PVR ×(1 − 0.5d), venodilation, faster relaxation</td></tr>
@@ -3716,8 +3815,10 @@ document.addEventListener('click', e => {
   if (t.dataset.mode) { setMode(t.dataset.mode === 'adv'); return; }
   if (t.dataset.scen) { cmScenario(t.dataset.scen); return; }
   if (t.dataset.jump) { e.preventDefault(); const el = document.getElementById('m-' + t.dataset.jump); if (el) { el.scrollIntoView({ behavior: cmReduce() ? 'auto' : 'smooth', block: 'start' }); el.setAttribute('tabindex', '-1'); el.focus({ preventScroll: true }); } return; }
-  if (t.dataset.lv) { S.labView.view = t.dataset.lv; const c = t.dataset.lv === 'circ';
-    $('#pvwrap').hidden = c; $('#circwrap').hidden = !c; const li = $('#labimg'); if (li) li.hidden = c; document.querySelectorAll('[data-lv]').forEach(b => { const on = b.dataset.lv === t.dataset.lv; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+  if (t.dataset.lsv) { const w = t.dataset.lsv === 'wave', mp = $('#mainplots'), wp = $('#waveplots'); if (mp) mp.hidden = w; if (wp) wp.hidden = !w;
+    document.querySelectorAll('[data-lsv]').forEach(b => { const on = b.dataset.lsv === t.dataset.lsv; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); }); S.dirty = true; return; }
+  if (t.dataset.lv) { S.labView.view = t.dataset.lv; const v = t.dataset.lv, c = v === 'circ';
+    $('#pvwrap').hidden = v !== 'pv'; $('#circwrap').hidden = !c; const ww = $('#wavewrap'); if (ww) ww.hidden = v !== 'wave'; const pw = $('#profwrap'); if (pw) pw.hidden = v !== 'prof'; const gw = $('#guywrap'); if (gw) gw.hidden = v !== 'guy'; const li = $('#labimg'); if (li) li.hidden = v !== 'pv'; document.querySelectorAll('[data-lv]').forEach(b => { const on = b.dataset.lv === t.dataset.lv; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
     if (c) { cmOff = {}; cmUpdate(sim, true); } S.dirty = true; return; }
   if (t.id === 'cmlab') { PENDING_PRESET = HOME_SCEN; return; }
   if (t.dataset.v !== undefined && t.dataset.k) { applyCtl(t.dataset.k, !!t.dataset.g, +t.dataset.v); updateRO(); return; }
@@ -3734,14 +3835,23 @@ document.addEventListener('click', e => {
   if (t.id === 'bppaste') { pasteBedside(); return; }
   if (t.id === 'bpcompare') { compareStrats(); return; }
   if (t.dataset.apply !== undefined) { applyStrat(+t.dataset.apply); return; }
-  if (t.id === 'labreset') { recordUndo(); pinLoop('Before reset'); loadLabPreset(S.presetName); return; }
+  if (t.id === 'labreset') { if (S.chal) { pinLoop('Before reset'); startChal(S.chal.i); return; } recordUndo(); pinLoop('Before reset'); loadLabPreset(S.presetName); return; }
   if (t.id === 'labundo') { labUndo(); return; }
   if (t.id === 'labshare') { copyShare(); return; }
   if (t.id === 'labimg') { saveLoopImage(); return; }
   if (t.id === 'tipok') { try { localStorage.setItem('circulus-tip-lab', '1'); } catch (e2) {} const tp = $('#labtip'); if (tp) tp.remove(); return; }
   if (t.dataset.a) { ACT[t.dataset.a][1](sim); return; }
+  if (t.dataset.chal !== undefined) { startChal(+t.dataset.chal); return; }
+  if (t.id === 'chalback') { S.chal = null; renderLabTab(); return; }
+  if (t.id === 'chalgive') { chalFinish(false); return; }
+  if (t.id === 'chalact' && S.chal && sim) { CHAL[S.chal.i].act[1](sim); return; }
+  if (t.id === 'profcmp') { compareStrats(); return; }
+  if (t.id === 'profclr') { S.profTrail = []; return; }
+  if (t.dataset.pk) { S.pred = S.pred || {}; S.pred[t.dataset.pk] = t.dataset.pd; t.parentNode.querySelectorAll('[data-pk]').forEach(x => { const on = x === t; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); }); return; }
   if (t.dataset.t !== undefined && sec) {
     const tr = sec.tries[+t.dataset.t];
+    if (predOn() && !t.dataset.go && whyPrep(tr)) { showPredict(+t.dataset.t); return; }
+    const pre = whyPrep(tr);
     if (sim && tr.pin !== false) pinLoop('Before: ' + tr.l);
     if (tr.curve) pinCurve();
     if (tr.reset && sim) { sim = new Sim(Object.assign({}, sec.preset || {})); sim.run(sec.settle || 12); }
@@ -3759,6 +3869,7 @@ document.addEventListener('click', e => {
     }
     if (tr.act) ACT[tr.act][1](sim);
     const n = $('#note'); n.hidden = false; n.innerHTML = '<b>Watch for:</b> ' + tr.w;
+    if (pre) { n.insertAdjacentHTML('beforeend', '<div class="why" id="whybox"></div>'); whyRun(pre, t.dataset.go === '1' ? (S.pred || {}) : null, $('#whybox')); }
     return;
   }
   if (t.id === 'newcase') { newCase(); $('#score').textContent = scoreText(); return; }
@@ -3780,12 +3891,429 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('change', e => { if (e.target.id === 'labpreset') { recordUndo(); pinLoop('Preset: ' + S.presetName); loadLabPreset(e.target.value); return; } if (e.target.id === 'speed') speed = +e.target.value; if (e.target.id === 'navsel') location.hash = e.target.value; });
 document.addEventListener('keydown', e => { if (e.key === ' ' && e.target === document.body) { e.preventDefault(); $('#play').click(); } });
+// close the loop settings popover on an outside click or Escape
+document.addEventListener('click', e => { document.querySelectorAll('details.pvset[open]').forEach(d => { if (!d.contains(e.target)) d.open = false; }); });
+document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; document.querySelectorAll('details.pvset[open]').forEach(d => { d.open = false; d.querySelector('summary').focus(); }); });
 $('#q').addEventListener('input', e => { const q = e.target.value.toLowerCase(); document.querySelectorAll('#nav a').forEach(a => a.hidden = q && !a.textContent.toLowerCase().includes(q)); document.querySelectorAll('#nav .ng').forEach(g => g.hidden = q && ![...g.querySelectorAll('a')].some(a => !a.hidden)); });
 
 // ---------- nav
 const GROUPS_NAV = window.GROUPS_NAV;
 $('#nav').insertAdjacentHTML('beforeend', `<a href="#" class="homelink">Overview and model</a><a href="#math" class="homelink">The math behind Circulus</a>` + GROUPS_NAV.map(g => `<div class="ng"><h3>${esc(g[0])}</h3>${g[1].map(id => { const s = SECTIONS.find(x => x.id === id); return s ? `<a href="#${id}">${esc(s.t)}</a>` : ''; }).join('')}</div>`).join(''));
 $('#navsel').innerHTML = `<option value="">Overview</option>` + GROUPS_NAV.map(g => `<optgroup label="${esc(g[0])}">${g[1].map(id => { const s = SECTIONS.find(x => x.id === id); return s ? `<option value="${id}">${esc(s.t)}</option>` : ''; }).join('')}</optgroup>`).join('');
+
+// ================= Teaching layer: value descriptions, haemodynamic profile, predict-first and "why it changed" =================
+// physiology behind each readout, shown on hover in Advanced mode: [what it reflects, rises with, falls with]
+const PHYS = {
+  BP: ['Peak and trough pressure in the aorta each beat. Systolic reflects the stroke volume ejected into the aorta and how stiff the aorta is; diastolic reflects how fast blood runs off through the arterioles.', 'systolic: bigger stroke volume, stiffer arteries; diastolic: higher SVR, faster heart rate.', 'systolic: small stroke volume (shock, tamponade); diastolic: vasodilation, aortic regurgitation.'],
+  MAP: ['The average driving pressure for organ perfusion. It is set by flow and resistance: MAP ≈ CO × SVR + CVP.', 'more cardiac output, or arteriolar constriction (vasopressors, sympathetic tone).', 'low output (pump failure, hypovolaemia) or vasodilation (sepsis, anaesthesia, nitroprusside).'],
+  PP: ['Systolic minus diastolic pressure: roughly stroke volume ÷ arterial compliance.', 'large stroke volume, stiff aorta (age), aortic regurgitation.', 'small stroke volume: cardiogenic shock, tamponade, severe aortic stenosis.'],
+  HR: ['Beats per minute. Sets how many stroke volumes leave per minute, and how much time the ventricle has to fill and the coronaries to perfuse (diastole shortens most as rate rises).', 'sympathetic drive, β-agonists, fever, pain, compensation for a low stroke volume.', 'vagal tone, β-blockers, conduction disease.'],
+  CO: ['Litres pumped per minute = stroke volume × heart rate: the flow that carries oxygen to the tissues.', 'more preload (up the Starling curve), more contractility, less afterload, a faster rate until filling suffers.', 'low preload, weak contractility, high afterload, obstruction (tamponade, stenosis), very fast or slow rates.'],
+  CI: ['Cardiac output scaled to body size (÷ BSA): the usual bedside threshold for a low-output state.', 'the same things that raise cardiac output.', 'the same things that lower cardiac output; below 2.2 with a high wedge pressure is the cardiogenic shock pattern.'],
+  SV: ['Volume ejected per beat = EDV − ESV. Set by preload, afterload and contractility together.', 'more filling (Frank–Starling), stronger contraction, lower afterload.', 'less filling, weaker contraction, higher afterload.'],
+  fwdSV: ['The part of each stroke volume that goes forward into the aorta, excluding blood that leaks backward through a regurgitant valve.', 'afterload reduction in regurgitant lesions, more contractility.', 'worse mitral or aortic regurgitation, higher afterload.'],
+  EF: ['Fraction of the filled ventricle ejected each beat (SV ÷ EDV). A load-dependent index of systolic function, not pure contractility.', 'more contractility, lower afterload, and regurgitation (ejecting into a low-pressure chamber).', 'weak myocardium, high afterload. It can stay normal when the chamber is small and stiff (HFpEF, amyloid).'],
+  LVEDV: ['Ventricular volume at the end of filling: the true preload, the stretch that sets the force of the next beat (Frank–Starling).', 'more venous return or blood volume, slower heart rate, regurgitation, chronic dilation.', 'hypovolaemia, venodilation, tamponade, a stiff ventricle, short diastole.'],
+  LVESV: ['Volume left after ejection. Set by contractility and afterload: ejection stops where end-systolic pressure meets the ESPVR.', 'weaker contractility or higher afterload.', 'stronger contractility (inotropes) or lower afterload (vasodilators).'],
+  LVEDP: ['LV pressure at the end of filling. Reflects how full the ventricle is and how stiff it is (its position on the EDPVR).', 'volume overload, a stiff ventricle (hypertrophy, ischaemia, amyloid), slow relaxation.', 'hypovolaemia, diuresis, venodilators.'],
+  LVSP: ['Peak pressure the LV generates in systole. Normally equal to aortic systolic pressure; higher than it means outflow obstruction.', 'higher afterload, aortic stenosis, inotropes.', 'weak contractility, low afterload.'],
+  ESP: ['LV pressure at the end of ejection, where the loop meets the ESPVR: the effective afterload the ventricle finishes against (close to the dicrotic notch).', 'vasoconstriction, stiff arteries.', 'vasodilators, low stroke volume.'],
+  LAP: ['Mean left atrial pressure, which the wedge pressure estimates: the back-pressure into the lungs. Above about 18 mmHg fluid starts to leak into the alveoli.', 'volume overload, LV failure, a stiff LV, mitral stenosis or regurgitation.', 'diuresis, venodilators (nitrates), hypovolaemia, LV unloading devices.'],
+  LAv: ['Peak of the left atrial v-wave, as the atrium fills against a closed mitral valve. Tall v-waves suggest mitral regurgitation or a stiff atrium.', 'mitral regurgitation, a small stiff LA, volume overload.', 'reducing MR (afterload reduction), diuresis.'],
+  RAP: ['Mean right atrial pressure (CVP): the RV filling pressure and the back-pressure on venous return. It reflects right heart function and venous tone, not total blood volume.', 'volume overload, RV failure, high PVR, tamponade, tricuspid regurgitation, positive-pressure ventilation.', 'hypovolaemia, venodilation, diuresis.'],
+  PA: ['Pulmonary artery systolic/diastolic (mean): the load the right ventricle pumps against.', 'a high left atrial pressure (post-capillary), a high PVR (pre-capillary), high flow (shunts).', 'a lower LA pressure, pulmonary vasodilators, low cardiac output.'],
+  mPAP: ['Mean pulmonary artery pressure ≈ PVR × flow + PCWP. Above 20 mmHg is pulmonary hypertension.', 'a raised wedge pressure (left heart disease), a raised PVR (lung or vascular disease), high flow.', 'lowering the wedge pressure, pulmonary vasodilators.'],
+  PAS: ['Peak pulmonary artery pressure, the number echo estimates from the TR jet.', 'the same things that raise mean PA pressure.', 'the same things that lower mean PA pressure.'],
+  RVEDV: ['RV volume at end-diastole. The thin-walled RV dilates readily when it is pressure- or volume-loaded.', 'volume overload, high PVR, TR, RV infarct.', 'hypovolaemia, unloading of the pulmonary circuit.'],
+  RVESV: ['RV volume after ejection. It rises quickly when PVR climbs, because the RV is very sensitive to afterload.', 'high PVR, a weak RV.', 'pulmonary vasodilators, RV inotropy.'],
+  RVEDP: ['RV pressure at end-diastole: the RV filling pressure, close to CVP.', 'RV failure, volume overload, tamponade.', 'diuresis, hypovolaemia.'],
+  RVEF: ['Fraction of the RV ejected per beat. Very sensitive to afterload, so it falls early in pulmonary hypertension.', 'lower PVR, inotropes.', 'rising PVR, RV ischaemia, volume overload.'],
+  RVSP: ['Peak RV pressure: equal to PA systolic unless the pulmonic valve is stenotic.', 'high PVR, high wedge pressure, pulmonic stenosis.', 'pulmonary vasodilators, a lower wedge pressure.'],
+  SVR: ['Resistance of the systemic arterioles = 80 × (MAP − CVP) ÷ CO. It sets how much pressure a given flow produces, and is the main part of LV afterload.', 'vasoconstriction: sympathetic tone, vasopressors, cold, compensation for low output.', 'vasodilation: sepsis, anaesthesia, nitroprusside, ACE inhibitors, anaphylaxis.'],
+  PVR: ['Resistance of the pulmonary arterioles = (mPAP − PCWP) ÷ CO, in Wood units: the main part of RV afterload.', 'hypoxia (vasoconstriction), lung disease, pulmonary embolism, chronic left heart disease.', 'oxygen, inhaled NO, pulmonary vasodilators, milrinone.'],
+  CPO: ['Cardiac power = MAP × CO ÷ 451: the hydraulic energy the heart delivers per second, combining pressure and flow. The strongest haemodynamic predictor of death in cardiogenic shock (below 0.6 W).', 'more output at a given pressure: inotropes, mechanical support.', 'pump failure, hypotension.'],
+  PAPi: ['PA pulsatility index = (PA systolic − PA diastolic) ÷ CVP. Low values mean the RV cannot generate a pulse relative to its filling pressure: RV failure.', 'better RV contractility, a lower CVP.', 'RV failure (for example RV infarct), a high CVP.'],
+  SvO2: ['Saturation of blood returning to the heart. Shows how much oxygen the tissues had to extract: delivery versus consumption (the Fick principle).', 'more delivery (output, haemoglobin, SaO₂) or less consumption (sedation, cooling). Very high in sepsis when extraction fails.', 'low cardiac output, anaemia, hypoxaemia, or high demand (fever, shivering).'],
+  DO2: ['Oxygen delivered to the tissues per minute = CO × arterial O₂ content.', 'higher output, haemoglobin or SaO₂.', 'low output, anaemia, hypoxaemia.'],
+  VO2: ['Whole-body oxygen consumption per minute: metabolic demand.', 'exercise, fever, sepsis, shivering, catecholamines.', 'sedation, paralysis, hypothermia.'],
+  Ea: ['Arterial elastance = end-systolic pressure ÷ stroke volume. Lumps the whole arterial load into one slope in the PV plane: the Ea line on the loop.', 'higher SVR, faster heart rate, stiffer arteries.', 'vasodilators, a slower heart rate.'],
+  EesEff: ['End-systolic elastance: the slope of the ESPVR, the load-independent measure of contractility.', 'inotropes, sympathetic tone, exercise.', 'ischaemia, cardiomyopathy, β-blockers, acidosis.'],
+  EaEes: ['Ventricular–arterial coupling. Around 0.5–1 the heart hands energy to the arteries efficiently; above 1 the ventricle is weak for its load.', 'weak contractility or high afterload: failing hearts.', 'inotropes, afterload reduction.'],
+  SW: ['External work per beat: the area inside the PV loop (pressure × volume ejected).', 'a bigger stroke volume or higher pressure.', 'a smaller loop: low output or low pressure.'],
+  PE: ['Potential energy: the area between the ESPVR, the EDPVR and the loop. Energy spent building pressure that does no external work.', 'a higher end-systolic pressure and volume (dilated ventricles, high afterload).', 'afterload reduction, smaller hearts.'],
+  PVA: ['Pressure–volume area = stroke work + potential energy. Myocardial oxygen use rises in a straight line with PVA.', 'higher pressure, bigger volumes.', 'unloading: vasodilators, Impella, less volume.'],
+  SWJ: ['Stroke work converted to joules per beat.', 'a bigger stroke volume or pressure.', 'a smaller loop.'],
+  MVO2: ['Oxygen the heart muscle burns per minute, set by PVA, contractility and heart rate. Ischaemia follows when it outruns coronary supply.', 'tachycardia, high afterload, inotropes, dilation.', 'β-blockade, afterload reduction, unloading devices, a slower rate.'],
+  MVO2beat: ['Myocardial oxygen used per beat, from PVA and contractility.', 'a bigger PVA, higher contractility.', 'unloading.'],
+  eff: ['Mechanical efficiency: external work ÷ energy consumed. Failing, dilated hearts waste more energy as potential energy.', 'afterload reduction, better coupling.', 'dilation, high afterload, inotropes in a weak heart.'],
+  PVAmin: ['PVA per minute, in joules: the total mechanical energy demand.', 'a higher rate, pressure or volume.', 'unloading.'],
+  SWmin: ['External work per minute, in joules.', 'more output at a higher pressure.', 'less output or pressure.'],
+  dpmax: ['Fastest rate of LV pressure rise during isovolumic contraction: a contractility index that preload also raises.', 'inotropes, sympathetic drive, more preload.', 'weak myocardium, β-blockers.'],
+  dpmin: ['Fastest rate of LV pressure fall during isovolumic relaxation: how quickly the ventricle lets go.', 'faster relaxation (more negative): catecholamines.', 'slow relaxation: hypertrophy, ischaemia, ageing, amyloid.'],
+  tau: ['Time constant of isovolumic relaxation. Slow relaxation raises early diastolic pressure and hampers filling at fast rates.', 'ischaemia, hypertrophy, ageing, infiltration.', 'catecholamines, milrinone, exercise.'],
+  AVmg: ['Average systolic pressure drop across the aortic valve. It depends on flow as well as valve area, so it underestimates stenosis when output is low.', 'a narrower valve, higher flow.', 'low-flow states (falsely reassuring), valve replacement.'],
+  AVpg: ['Peak instantaneous aortic gradient = 4 × Vmax².', 'a narrower valve, higher flow.', 'low flow.'],
+  AoVmax: ['Peak velocity of blood through the aortic valve. Above 4 m/s indicates severe stenosis.', 'stenosis, high flow.', 'low flow.'],
+  MVmg: ['Average diastolic pressure drop across the mitral valve. It climbs steeply with heart rate because diastole shortens.', 'mitral stenosis, tachycardia, high flow.', 'rate control, valvotomy.'],
+  ARvol: ['Blood leaking back from the aorta into the LV during each diastole.', 'a larger regurgitant orifice, a higher diastolic aortic pressure, a slower rate (longer diastole).', 'afterload reduction, a faster heart rate.'],
+  ARF: ['Proportion of LV stroke volume that leaks back through the aortic valve. Above 50% is severe.', 'a larger orifice, higher afterload, bradycardia.', 'vasodilators, a faster heart rate.'],
+  MRvol: ['Blood ejected backward into the LA each beat.', 'a larger orifice, a higher LV systolic pressure, LV dilation (functional MR).', 'afterload reduction, diuresis, inotropes that shrink the LV.'],
+  MRF: ['Proportion of LV ejection that goes back into the LA. Above 50% is severe.', 'higher afterload, LV dilation.', 'afterload reduction, unloading.'],
+  TRvol: ['Blood ejected backward into the RA each beat.', 'RV dilation, high PVR.', 'a lower PVR, diuresis.'],
+  Evel: ['Peak early mitral inflow velocity, driven by the LA-to-LV pressure difference as the LV relaxes.', 'a high LA pressure, fast relaxation, MR.', 'slow relaxation, a low LA pressure.'],
+  Avel: ['Peak late mitral inflow from atrial contraction.', 'slow LV relaxation, a strong atrial kick.', 'AF (absent), a very stiff LV, a weak atrium (amyloid).'],
+  EA: ['E/A ratio: early versus atrial filling. Low in impaired relaxation; high (restrictive) when LA pressure is high in a stiff ventricle.', 'a high LA pressure with a stiff LV.', 'impaired relaxation at a normal LA pressure.'],
+  DT: ['Deceleration time of early mitral inflow: how quickly LA and LV pressures equalise. Short means a stiff LV filling at high pressure.', 'slow relaxation.', 'a stiff ventricle, a high LA pressure (restrictive filling).'],
+  VTI: ['LVOT velocity–time integral: the distance blood travels per beat, an echo surrogate for stroke volume.', 'a higher stroke volume.', 'a lower stroke volume; below 15 cm suggests low output.'],
+  ejT: ['Duration of ejection. Shortens with a low stroke volume and fast rates.', 'a larger stroke volume, a slower heart rate, aortic stenosis.', 'a low stroke volume, tachycardia.'],
+  QpQs: ['Pulmonary ÷ systemic flow. Above 1 means a left-to-right shunt.', 'a larger ASD or VSD, a lower PVR.', 'a higher PVR (risk of shunt reversal).'],
+  Qasd: ['Flow through an atrial septal defect, left to right.', 'a larger defect, a stiffer LV, a more compliant RV.', 'a stiffer RV or a rising PVR.'],
+  Qvsd: ['Flow through a ventricular septal defect, left to right.', 'a larger defect, a higher SVR relative to PVR.', 'a rising PVR (Eisenmenger), afterload reduction.'],
+  Ppe: ['Pressure in the pericardial space. When it rises it squeezes all four chambers and equalises their diastolic pressures (tamponade).', 'an effusion, volume overload inside a tight pericardium.', 'pericardiocentesis.'],
+  pulsus: ['Fall in systolic pressure during inspiration. Above 10 mmHg is pulsus paradoxus: the two ventricles competing for space inside a constrained pericardium.', 'tamponade, severe asthma, hypovolaemia.', 'draining the effusion.'],
+  PPV: ['Pulse pressure variation with ventilation. High values suggest the heart sits on the steep part of the Starling curve (fluid responsive).', 'hypovolaemia, large tidal volumes.', 'fluid loading, a heart on the flat part of the curve.'],
+  imp: ['Flow through the Impella from LV to aorta. It unloads the LV (shrinks the loop) while supporting output.', 'a higher pump level, more LV filling.', 'suction from a low LV volume.'],
+  ecmo: ['VA-ECMO flow from the veins to the aorta. It supports perfusion but raises the afterload on the native LV.', 'a higher pump speed.', 'weaning.'],
+  rp: ['Impella RP flow from the RA and IVC to the pulmonary artery: right heart support.', 'a higher level.', 'weaning.'],
+  LVout: ['Flow ejected through the aortic valve by the native LV.', 'better LV function, lower afterload.', 'device support taking over, high ECMO afterload.'],
+  totFlow: ['All flow reaching the systemic circulation, native plus device.', 'more native output or device flow.', 'a failing pump, low device flow.'],
+  SD: ['Coronary supply ÷ demand. Below 1 the myocardium becomes ischaemic.', 'a higher diastolic pressure, a longer diastole, lower demand.', 'hypotension, tachycardia, high wall stress, stenosis.'],
+  CBF: ['Estimated coronary blood flow, driven mainly by diastolic aortic pressure minus LV diastolic pressure, during diastole.', 'a higher diastolic pressure, a longer diastole, vasodilation.', 'hypotension, tachycardia, a high LVEDP.'],
+  isch: ['How much contractility the model has lost to ischaemia.', 'demand outstripping coronary supply.', 'restoring the supply–demand balance.'],
+  Pdia: ['Average aortic pressure in diastole: the coronary perfusion pressure.', 'vasoconstriction, balloon-pump augmentation.', 'vasodilation, aortic regurgitation.'],
+  fdia: ['Fraction of each cycle spent in diastole: the time available for filling and coronary flow.', 'a slower heart rate.', 'tachycardia.'],
+  TAPSE: ['Tricuspid annular systolic excursion: how far the RV base moves toward the apex, an echo index of RV longitudinal function.', 'good RV function.', 'RV dysfunction; below 17 mm is abnormal.'],
+  PASPest: ['PA systolic pressure estimated by echo from the TR jet plus RA pressure.', 'pulmonary hypertension.', 'lower PA pressures.'],
+  TRV: ['Peak velocity of the TR jet: 4V² gives the RV-to-RA pressure difference.', 'a high RV systolic pressure.', 'a lower PA pressure.'],
+  TAPSEPASP: ['RV function relative to its load: an echo surrogate for RV–PA coupling.', 'better RV function or a lower PA pressure.', 'RV failure in pulmonary hypertension.'],
+  SVESV: ['RV stroke volume ÷ end-systolic volume: a volume-based estimate of RV coupling (Ees/Ea).', 'better RV contractility, a lower PVR.', 'RV–PA uncoupling.'],
+  RVEesEa: ['True RV contractility ÷ pulmonary arterial elastance. Below about 0.8 the RV is uncoupled from its load.', 'RV inotropy, a lower PVR.', 'a rising PVR, RV ischaemia.'],
+  LAVmax: ['Largest LA volume, at end-systole. Chronically enlarged by a high LA pressure or MR.', 'MR, a high LA pressure, AF.', 'unloading.'],
+  bf: ['Beat-to-beat contractility from restitution and post-extrasystolic potentiation.', 'the beat after a pause (potentiation).', 'premature beats.'],
+  SI: ['Stroke volume scaled to body size.', 'the same things that raise stroke volume.', 'the same things that lower stroke volume.'],
+  reflex: ['How hard the baroreflex is pushing heart rate, contractility and vessel tone to defend MAP.', 'MAP falling below the set point.', 'MAP above the set point.'],
+};
+const PHYS_ALIAS = { CVP: 'RAP', PCWP: 'LAP', PASP: 'PAS' };
+let tipEl = null, tipFor = null;
+function physTipHTML(k) {
+  k = PHYS_ALIAS[k] || k; const ph = PHYS[k]; if (!ph) return '';
+  const r = RO[k];
+  return `<b>${esc(r ? r[0] : k)}</b>${DEF[k] ? `<span class="pd">${esc(DEF[k])}</span>` : ''}<span>${esc(ph[0])}</span>` +
+    (ph[1] ? `<span><i>Rises with</i> ${esc(ph[1])}</span>` : '') + (ph[2] ? `<span><i>Falls with</i> ${esc(ph[2])}</span>` : '');
+}
+function tipShow(el) {
+  const h = physTipHTML(el.dataset.phys); if (!h) return;
+  if (!tipEl) { tipEl = document.createElement('div'); tipEl.id = 'phystip'; tipEl.setAttribute('role', 'tooltip'); document.body.appendChild(tipEl); }
+  if (tipFor && tipFor !== el) tipHide();
+  tipEl.innerHTML = h; tipEl.hidden = false;
+  if (el.title) { el.dataset.t0 = el.title; el.title = ''; }
+  tipFor = el;
+  const r = el.getBoundingClientRect(), tw = tipEl.offsetWidth, th = tipEl.offsetHeight;
+  const x = Math.max(8, Math.min(r.left + r.width / 2 - tw / 2, innerWidth - tw - 8));
+  let y = r.bottom + 8; if (y + th > innerHeight - 8) y = r.top - th - 8;
+  tipEl.style.left = x + 'px'; tipEl.style.top = Math.max(8, y) + 'px';
+}
+function tipHide() {
+  if (tipEl) tipEl.hidden = true;
+  if (tipFor && tipFor.dataset.t0) { tipFor.title = tipFor.dataset.t0; delete tipFor.dataset.t0; }
+  tipFor = null;
+}
+document.addEventListener('mouseover', e => {
+  if (!ADV) { if (tipFor) tipHide(); return; }
+  const el = e.target.closest ? e.target.closest('[data-phys]') : null;
+  if (el === tipFor) return;
+  if (el) tipShow(el); else if (tipFor) tipHide();
+});
+document.addEventListener('focusin', e => { if (!ADV) return; const el = e.target.closest ? e.target.closest('[data-phys]') : null; if (el) tipShow(el); else if (tipFor) tipHide(); });
+document.addEventListener('scroll', () => { if (tipFor) tipHide(); }, true);
+
+// ---------- steady state of a parameter set, measured off-line (used by predictions and explanations)
+const WHYK = ['MAP', 'CO', 'HR', 'SV', 'EF', 'LVEDV', 'LVESV', 'LVEDP', 'LAP', 'RAP', 'ESP', 'Ea', 'SVR', 'mPAP', 'MVO2', 'EesEff', 'MRF'];
+function ssMeasure(p) {
+  const s = new Sim(p), avgB = () => { const B = s.beats.filter(q => q.type === 0).slice(-4), o = {}; WHYK.forEach(k => o[k] = B.reduce((a, q) => a + (isFinite(q[k]) ? q[k] : 0), 0) / Math.max(B.length, 1)); return o; };
+  s.run(p.baro ? 30 : 14);
+  let prev = avgB();
+  for (let i = 0; i < 16; i++) { s.run(2); const now = avgB(); if (['MAP', 'LAP', 'RAP', 'LVEDV'].every(k => Math.abs(now[k] - prev[k]) < 0.15) && Math.abs(now.CO - prev.CO) < 0.02) { prev = now; break; } prev = now; }
+  return prev;
+}
+
+// ---------- "why it changed": the causal chain from the settings that moved to the numbers that followed
+const OTHERK = ['av_f', 'av_r', 'mv_f', 'mv_r', 'fmr', 'tv_f', 'tv_r', 'pv_r', 'asd', 'vsd', 'eff', 'imp', 'ecmo', 'rpump', 'rhythm', 'resp', 'peep', 'exer', 'LV_V0', 'RV_Ees', 'RV_k', 'cadOn', 'sten', 'PRi', 'Cas', 'periK', 'LA_Ees', 'LA_k'];
+function whyHTML(p0, p1, A, B) {
+  const e0 = effective(p0), e1 = effective(p1), rel = (a, b) => (b - a) / Math.abs(a || 1);
+  const ch = (a, b, d, u, thr) => { const dv = b - a, s = Math.abs(dv) < (thr || 0) ? '' : dv > 0 ? ' ▲' : ' ▼'; return `<span class="wchg">${fmt(a, d)} → ${fmt(b, d)}${u ? ' ' + u : ''}${s}</span>`; };
+  const drv = [];
+  const dHR = e1.HR - e0.HR, rE = rel(e0.LV_Ees, e1.LV_Ees), rR = rel(e0.Ras, e1.Ras), rK = rel(e0.LV_k, e1.LV_k), rT = rel(e0.LV_tau, e1.LV_tau), rP = rel(e0.Rap, e1.Rap);
+  const dVol = (p1.dV - p0.dV), dVen = -(e1.V0sv - e0.V0sv), dS = dVol + dVen;
+  if (Math.abs(dHR) >= 2) drv.push(`Heart rate set ${dHR > 0 ? 'faster' : 'slower'}: ${ch(e0.HR, e1.HR, 0, 'bpm')}`);
+  if (Math.abs(rE) >= 0.03) drv.push(`Contractility ${rE > 0 ? 'stronger' : 'weaker'}: Ees ${ch(e0.LV_Ees, e1.LV_Ees, 2, 'mmHg/mL')}`);
+  if (Math.abs(rR) >= 0.03) drv.push(`Arterioles ${rR > 0 ? 'constrict' : 'dilate'}: resistance ×${fmt(e1.Ras / e0.Ras, 2)}`);
+  if (Math.abs(dS) >= 20) drv.push(`Stressed blood volume ${dS > 0 ? '+' : '−'}${fmt(Math.abs(dS))} mL (${[Math.abs(dVol) >= 20 ? (dVol > 0 ? 'volume added' : 'volume removed') : '', Math.abs(dVen) >= 20 ? (dVen > 0 ? 'venoconstriction squeezes blood out of the veins' : 'venodilation pools blood in the veins') : ''].filter(Boolean).join(', ')})`);
+  if (Math.abs(rK) >= 0.03) drv.push(`LV diastolic stiffness ${rK > 0 ? 'higher' : 'lower'}`);
+  if (Math.abs(rT) >= 0.05) drv.push(`LV relaxation ${rT > 0 ? 'slower' : 'faster'}: τ ${ch(e0.LV_tau * 1000, e1.LV_tau * 1000, 0, 'ms')}`);
+  if (Math.abs(rP) >= 0.05) drv.push(`Pulmonary vascular resistance ×${fmt(e1.Rap / e0.Rap, 2)}`);
+  const oth = OTHERK.filter(k => Math.abs((e1[k] || 0) - (e0[k] || 0)) > 1e-9).map(k => CTL[k] ? CTL[k][0] : k);
+  if (oth.length) drv.push(`Also changed: ${esc(oth.join(', '))}`);
+  const dEDV = B.LVEDV - A.LVEDV, dESV = B.LVESV - A.LVESV, dSV = B.SV - A.SV;
+  const steps = [];
+  if (Math.abs(dEDV) >= 2 || Math.abs(B.LVEDP - A.LVEDP) >= 1) {
+    const why = Math.abs(rK) >= 0.03 && rK > 0 ? 'a stiffer ventricle needs more pressure to hold the same volume'
+      : Math.abs(dS) >= 20 ? (dS > 0 ? 'more stressed volume pushes more blood back to the heart' : 'less stressed volume means less venous return')
+      : Math.abs(dHR) >= 2 && dHR > 0 && dEDV < 0 ? 'a shorter diastole leaves less time to fill'
+      : dEDV > 0 ? 'the ventricle empties less, so it starts the next beat fuller' : 'more complete emptying leaves less behind for the next beat';
+    steps.push(`<b>Filling (preload)</b>: EDV ${ch(A.LVEDV, B.LVEDV, 0, 'mL', 2)}, LVEDP ${ch(A.LVEDP, B.LVEDP, 0, 'mmHg', 1)}, because ${why}.`);
+  }
+  if (Math.abs(rel(A.Ea, B.Ea)) >= 0.03 || Math.abs(B.ESP - A.ESP) >= 2)
+    steps.push(`<b>Afterload</b>: Ea ${ch(A.Ea, B.Ea, 2, 'mmHg/mL', 0.03)}, end-systolic pressure ${ch(A.ESP, B.ESP, 0, 'mmHg', 2)}. The ventricle ejects against ${B.ESP > A.ESP ? 'more' : 'less'} pressure.`);
+  if (Math.abs(dESV) >= 2) {
+    const why = Math.abs(rE) >= 0.03 ? (rE > 0 ? 'a stronger ventricle empties further at the same pressure' : 'a weaker ventricle stops ejecting sooner')
+      : B.ESP > A.ESP ? 'ejection stops earlier against a higher pressure' : 'ejection continues further against a lower pressure';
+    steps.push(`<b>Emptying</b>: ESV ${ch(A.LVESV, B.LVESV, 0, 'mL', 2)}, because ${why}.`);
+  }
+  steps.push(`<b>Stroke volume</b> = EDV − ESV: EDV ${dEDV >= 0 ? '+' : '−'}${fmt(Math.abs(dEDV))}, ESV ${dESV >= 0 ? '+' : '−'}${fmt(Math.abs(dESV))}, so SV ${ch(A.SV, B.SV, 0, 'mL', 1)}.`);
+  steps.push(`<b>Cardiac output</b> = SV × HR: ${fmt(A.SV)} × ${fmt(A.HR)} → ${fmt(B.SV)} × ${fmt(B.HR)}, so CO ${ch(A.CO, B.CO, 1, 'L/min', 0.1)}.`);
+  steps.push(`<b>Blood pressure</b> ≈ CO × SVR + CVP: SVR ${ch(A.SVR, B.SVR, 0, '', 20)}, so MAP ${ch(A.MAP, B.MAP, 0, 'mmHg', 1)}.`);
+  if (Math.abs(B.LAP - A.LAP) >= 1 || Math.abs(B.RAP - A.RAP) >= 1)
+    steps.push(`<b>Back-pressure</b>: PCWP ${ch(A.LAP, B.LAP, 0, 'mmHg', 1)}, CVP ${ch(A.RAP, B.RAP, 0, 'mmHg', 1)}. ${B.LAP > A.LAP + 1 ? 'Higher left-sided filling pressure backs up into the lungs.' : B.LAP < A.LAP - 1 ? 'Lower left-sided pressure relieves lung congestion.' : ''}`);
+  if (Math.abs(B.MRF - A.MRF) >= 0.03) steps.push(`<b>Mitral regurgitation</b>: fraction ${ch(A.MRF * 100, B.MRF * 100, 0, '%', 2)}.`);
+  if (Math.abs(rel(A.MVO2, B.MVO2)) >= 0.05) steps.push(`<b>Oxygen cost</b>: MVO₂ ${ch(A.MVO2, B.MVO2, 1, 'mL/min', 0.5)}.`);
+  const net = [['MAP', 'MAP', 0, 'mmHg', 1], ['CO', 'CO', 1, 'L/min', 0.1], ['LAP', 'PCWP', 0, 'mmHg', 1]].map(([k, l, d, u, t]) => { const dv = B[k] - A[k]; return `${l} ${Math.abs(dv) < t ? 'about the same' : (dv > 0 ? '+' : '−') + fmt(Math.abs(dv), d) + ' ' + u}`; }).join(', ');
+  return `<details class="whyd" open><summary>Why it changed</summary>${drv.length ? `<p class="wd"><b>What the change did:</b> ${drv.join('; ')}.</p>` : '<p class="wd">No model setting changed.</p>'}<ol>${steps.map(s => `<li>${s}</li>`).join('')}</ol><p class="wnet"><b>Net, at steady state:</b> ${net}.</p></details>`;
+}
+
+// ---------- predict first
+let PRED = null; try { const v = localStorage.getItem('circulus-predict'); PRED = v === null ? null : v !== '0'; } catch (e) {}
+const predOn = () => PRED === null ? !ADV : PRED;   // default: on in Basic, off in Advanced, until the user chooses
+const PREDK = [['MAP', 'Blood pressure (MAP)', 2, 0], ['CO', 'Cardiac output', 0.15, 1], ['LAP', 'Wedge pressure (PCWP)', 1, 0]];
+const predToggleHTML = () => `<label class="predtg"><input type="checkbox" id="predon" ${predOn() ? 'checked' : ''}> Predict before each change</label>`;
+document.addEventListener('change', e => { if (e.target.id === 'predon') { PRED = e.target.checked; try { localStorage.setItem('circulus-predict', PRED ? '1' : '0'); } catch (e2) {} } });
+// before and after parameter sets for a Try-this button, mirroring how the button applies its change
+function whyPrep(tr) {
+  if (!sim || !sec || sec.kind === 'gas' || tr.gset) return null;
+  if (tr.act && !tr.set && !tr.mul && !tr.add) return null;   // transient events such as a PVC have no new steady state
+  const p0 = tr.keep ? Object.assign({}, sim.p) : tr.reset ? Object.assign({}, DEFAULTS, sec.preset || {}) : sec.kind === 'lab' ? Object.assign({}, S.base) : Object.assign({}, DEFAULTS, sec.preset || {});
+  const p1 = Object.assign({}, p0, tr.set || {});
+  if (!tr.keep) { if (tr.mul) for (const k in tr.mul) p1[k] = p0[k] * tr.mul[k]; if (tr.add) for (const k in tr.add) p1[k] = p0[k] + tr.add[k]; }
+  return { p0, p1 };
+}
+function showPredict(i) {
+  const tr = sec.tries[i], n = $('#note'); S.pred = {};
+  n.hidden = false;
+  n.innerHTML = `<div class="pred"><p><b>Predict first.</b> ${esc(tr.l)}: once things settle, which way will each value move?</p>${PREDK.map(([k, l]) => `<div class="prow" role="group" aria-label="${esc(l)}"><span>${esc(l)}</span>${[['up', '▲ Up'], ['same', '● Same'], ['down', '▼ Down']].map(([d, dl]) => `<button type="button" class="tg sm" data-pk="${k}" data-pd="${d}" aria-pressed="false">${dl}</button>`).join('')}</div>`).join('')}<div class="pact"><button type="button" class="act" data-t="${i}" data-go="1">Run it</button><button type="button" class="tg" data-t="${i}" data-go="2">Skip, just show me</button></div></div>`;
+}
+function predResultHTML(A, B, pred) {
+  let right = 0, n = 0;
+  const rows = PREDK.map(([k, l, thr, d]) => {
+    const dv = B[k] - A[k], act = Math.abs(dv) < thr ? 'same' : dv > 0 ? 'up' : 'down', g = pred[k], ar = { up: '▲ up', down: '▼ down', same: '● about the same' };
+    if (g) { n++; if (g === act) right++; }
+    return `<li class="${!g ? '' : g === act ? 'ok' : 'no'}">${esc(l)}: ${fmt(A[k], d)} → ${fmt(B[k], d)}, ${ar[act]}.${g ? ` You said ${ar[g]} ${g === act ? '✓' : '✗'}` : ''}</li>`;
+  }).join('');
+  return `<div class="pres"><p><b>${n ? `${right} of ${n} predictions right.` : 'No predictions made.'}</b></p><ul>${rows}</ul></div>`;
+}
+// run after a Try-this change: work out the before and after steady states off-line, then explain
+function whyRun(pre, pred, box) {
+  if (!box) return;
+  box.innerHTML = '<p class="muted small">Working out what changed…</p>';
+  setTimeout(() => {
+    if (!box.isConnected) return;
+    try { const A = ssMeasure(pre.p0), B = ssMeasure(pre.p1); box.innerHTML = (pred ? predResultHTML(A, B, pred) : '') + whyHTML(pre.p0, pre.p1, A, B); }
+    catch (err) { console.error(err); box.innerHTML = ''; }
+  }, 30);
+}
+
+// ---------- haemodynamic profile (Stevenson / Forrester): cardiac index against wedge pressure
+const PROF_COL = { Volume: '#2f7d6b', Pressor: '#b3261e', 'Oral pressor': '#b3261e', 'Afterload reduction (IV)': '#6f62b8', 'Afterload reduction (oral)': '#6f62b8', Venodilator: '#4d7fb5', Inotrope: '#b77b2b', Inodilator: '#b77b2b' };
+function profHTML() {
+  return `<div id="profwrap" hidden><figure class="panel prof"><figcaption>Haemodynamic profile (Stevenson / Forrester)<span class="lg"><i style="--c:var(--brand)">Patient now</i><i style="--c:var(--muted)">Recent path</i></span></figcaption><div class="fig"><canvas id="cvprof" role="img" aria-label="Cardiac index plotted against wedge pressure, with the four haemodynamic profiles"></canvas></div>
+  <div class="profbar"><button type="button" class="tg" id="profcmp">Show where each treatment would move this patient</button><button type="button" class="tg" id="profclr">Clear path</button></div>
+  <p class="help">Warm or cold is perfusion (cardiac index above or below 2.2). Dry or wet is congestion (wedge pressure below or above 18). Arrows are each treatment's steady state from the current patient, from the same run as Treat and compare.</p></figure></div>`;
+}
+function profDraw() {
+  const cv = $('#cvprof'); if (!cv || !cv.clientWidth) return;
+  const [c, W, H] = prep(cv), b = AB();
+  const X1 = 40, Y1 = 5, f = frame(c, W, H, { x0: 0, x1: X1, y0: 0, y1: Y1, xs: 5, ys: 1, xl: 'Wedge pressure, PCWP (mmHg)', yl: 'Cardiac index (L/min/m²)', l: 46, b: 34, r: 14, t: 12 });
+  const qx = f.x(18), qy = f.y(2.2), L = f.x(0), R = f.x(X1), T = f.y(Y1), Bt = f.y(0);
+  [[L, T, qx, qy, 'rgba(47,125,107,.08)'], [qx, T, R, qy, 'rgba(183,123,43,.09)'], [L, qy, qx, Bt, 'rgba(77,127,181,.09)'], [qx, qy, R, Bt, 'rgba(179,38,30,.09)']].forEach(([x0, y0, x1, y1, col]) => { c.fillStyle = col; c.fillRect(x0, y0, x1 - x0, y1 - y0); });
+  c.strokeStyle = css('--axis'); c.setLineDash([5, 4]); c.lineWidth = 1.2; c.beginPath(); c.moveTo(qx, T); c.lineTo(qx, Bt); c.moveTo(L, qy); c.lineTo(R, qy); c.stroke(); c.setLineDash([]);
+  const ql = (txt, sub, x, y, al) => { c.textAlign = al; c.textBaseline = 'top'; c.fillStyle = css('--ink'); c.font = '700 12px "Red Hat Text", system-ui, sans-serif'; c.fillText(txt, x, y); c.fillStyle = css('--muted'); c.font = '11px "Red Hat Text", system-ui, sans-serif'; c.fillText(sub, x, y + 15); };
+  ql('Warm & dry', 'compensated', L + 8, T + 6, 'left'); ql('Warm & wet', 'congested', R - 8, T + 6, 'right');
+  ql('Cold & dry', 'low output', L + 8, Bt - 36, 'left'); ql('Cold & wet', 'cardiogenic shock pattern', R - 8, Bt - 36, 'right');
+  if (!b) return;
+  const cx = v => Math.max(0, Math.min(X1, v)), cy = v => Math.max(0, Math.min(Y1, v)), ci = b.CO / 1.9;
+  // recent path, sampled every half simulated second
+  const tr = S.profTrail || (S.profTrail = []), last = tr[tr.length - 1];
+  if (!last || sim.t - last[2] > 0.5 || sim.t < last[2]) { if (last && sim.t < last[2]) tr.length = 0; tr.push([b.LAP, ci, sim.t]); if (tr.length > 240) tr.shift(); }
+  if (tr.length > 1) { c.strokeStyle = css('--muted'); c.lineWidth = 1.5; c.globalAlpha = 0.55; c.beginPath(); tr.forEach((q, i) => i ? c.lineTo(f.x(cx(q[0])), f.y(cy(q[1]))) : c.moveTo(f.x(cx(q[0])), f.y(cy(q[1])))); c.stroke(); c.globalAlpha = 1; }
+  // treatment arrows from the last Treat-and-compare run, if it was run on this exact patient
+  const st = S.strat, fresh = st && st[0] && st[0].b && S.stratSig === JSON.stringify(sim.p);
+  if (st && st[0] && st[0].b) {
+    const o = st[0].b, x0 = f.x(cx(o.LAP)), y0 = f.y(cy(o.CI));
+    c.globalAlpha = fresh ? 1 : 0.3;
+    c.font = '600 10.5px "Red Hat Text", system-ui, sans-serif';
+    const labs = [];
+    st.slice(1).forEach(r => {
+      if (!r.b) return;
+      const x1 = f.x(cx(r.b.LAP)), y1 = f.y(cy(r.b.CI)), dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy); if (len < 6) return;
+      const col = PROF_COL[r.cls] || css('--ink'), ux = dx / len, uy = dy / len;
+      c.strokeStyle = col; c.fillStyle = col; c.lineWidth = 1.8; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1 - ux * 6, y1 - uy * 6); c.stroke();
+      c.beginPath(); c.moveTo(x1, y1); c.lineTo(x1 - ux * 9 - uy * 4.5, y1 - uy * 9 + ux * 4.5); c.lineTo(x1 - ux * 9 + uy * 4.5, y1 - uy * 9 - ux * 4.5); c.closePath(); c.fill();
+      const txt = r.n.replace(', target dose', '').replace('ACE inhibitor/ARB', 'ACEi/ARB'), tw = c.measureText(txt).width;
+      let right = ux >= 0; if (right && x1 + 6 + tw > R - 2) right = false; if (!right && x1 - 6 - tw < L + 2) right = true;
+      labs.push({ txt, col, right, x: right ? x1 + 6 : x1 - 6, y: y1 + (uy >= 0 ? 7 : -7) });
+    });
+    // keep labels on the same side at least 12 px apart, inside the plot
+    [true, false].forEach(side => {
+      const g = labs.filter(q => q.right === side).sort((a, b2) => a.y - b2.y);
+      for (let i = 1; i < g.length; i++) if (g[i].y - g[i - 1].y < 12) g[i].y = g[i - 1].y + 12;
+      const over = g.length ? g[g.length - 1].y - (Bt - 6) : 0; if (over > 0) g.forEach(q => q.y -= over);
+      g.forEach(q => { q.y = Math.max(T + 6, q.y); });
+    });
+    const halo = css('--panel') || '#fff';
+    c.textBaseline = 'middle'; c.lineJoin = 'round';
+    labs.forEach(q => { c.textAlign = q.right ? 'left' : 'right'; c.strokeStyle = halo; c.lineWidth = 3; c.strokeText(q.txt, q.x, q.y); c.fillStyle = q.col; c.fillText(q.txt, q.x, q.y); });
+    c.globalAlpha = 1;
+    if (!fresh) { c.fillStyle = css('--muted'); c.font = '11px "Red Hat Text", system-ui, sans-serif'; c.textAlign = 'left'; c.textBaseline = 'top'; c.fillText('Arrows are from before your last change: run the comparison again.', L + 8, T + 40); }
+  }
+  // the patient now
+  const px = f.x(cx(b.LAP)), py = f.y(cy(ci));
+  c.fillStyle = css('--brand'); c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(px, py, 7, 0, 7); c.fill(); c.stroke();
+  const pl = `Patient: CI ${fmt(ci, 2)}, PCWP ${fmt(b.LAP)}`, plx = px + (px > W - 170 ? -10 : 10), ply = py - 16;
+  c.font = '700 11.5px "Red Hat Text", system-ui, sans-serif'; c.textAlign = px > W - 170 ? 'right' : 'left'; c.textBaseline = 'middle'; c.lineJoin = 'round';
+  c.strokeStyle = css('--panel') || '#fff'; c.lineWidth = 3.5; c.strokeText(pl, plx, ply); c.fillStyle = css('--ink'); c.fillText(pl, plx, ply);
+}
+// ---------- Guyton view: venous return and cardiac function curves meet at the operating point
+function guyHTML() {
+  return `<div id="guywrap" hidden><figure class="panel guy"><figcaption>Venous return and cardiac function (Guyton)<span class="lg"><i style="--c:var(--lv)">Cardiac function</i><i style="--c:#4d7fb5">Venous return</i><i style="--c:var(--muted)">Before last change</i></span></figcaption><div class="fig"><canvas id="cvguy" role="img" aria-label="Cardiac output against right atrial pressure: the cardiac function curve and the venous return line cross at the operating point"></canvas></div>
+  <p class="help">The heart runs where its function curve crosses the venous return line. Fluid or venoconstriction raises mean systemic filling pressure (MSFP) and shifts the venous return line right. Arteriolar dilation lowers resistance to venous return and makes the line steeper. Inotropes and afterload reduction lift the cardiac function curve. The dashed curves show the state before your last change.</p></figure></div>`;
+}
+function guyCompute() {
+  if (!sim || S.guyBusy) return;
+  const p = Object.assign({}, sim.p, { tCVP: 0, tCI: 0, tSI: 0, tEF: 0, tMVO2: 0, tMAP: 0 }), sig = JSON.stringify(sim.p), offs = [-900, -600, -300, 0, 300, 700, 1200, 1800], pts = [];
+  let i = 0, mid = null; S.guyBusy = true;
+  const next = () => {
+    if (!sec || sec.kind !== 'lab') { S.guyBusy = false; return; }
+    const s = new Sim(Object.assign({}, p, { dV: p.dV + offs[i] })); s.run(10);
+    const B = s.beats.filter(q => q.type === 0).slice(-3);
+    if (B.length) { const m = k => B.reduce((a, q) => a + q[k], 0) / B.length; if (m('LVEDP') < 60) pts.push([m('RAP'), m('CO')]); if (offs[i] === 0) mid = { s, RAP: m('RAP'), CO: m('CO') }; }
+    i++;
+    if (i < offs.length) { setTimeout(next, 0); return; }
+    S.guyBusy = false;
+    if (!mid) return;
+    const e = mid.s.e, y = mid.s.y, msfp = (y[4] - e.V0sa + y[5] - e.V0sv) / (e.Cas + e.Csv), rvr = Math.max(0.2, (msfp - mid.RAP) / Math.max(mid.CO, 0.2));
+    if (S.guy && S.guy.sig !== sig) S.guyPrev = S.guy;
+    S.guy = { sig, cf: pts.sort((a, b) => a[0] - b[0]), msfp, rvr };
+  };
+  setTimeout(next, 0);
+}
+function guyDraw() {
+  const cv = $('#cvguy'); if (!cv || !cv.clientWidth || !sim) return;
+  // recompute the curves 0.6 s after the settings stop changing
+  const sig = JSON.stringify(sim.p), now = performance.now();
+  if (sig !== S.guySeen) { S.guySeen = sig; S.guyAt = now; }
+  if ((!S.guy || S.guy.sig !== sig) && now - (S.guyAt || 0) > 600) guyCompute();
+  const [c, W, H] = prep(cv), b = AB(), G = S.guy, P = S.guyPrev;
+  const allX = [20].concat(G ? [G.msfp + 4] : [], P ? [P.msfp + 4] : [], b ? [b.RAP + 8] : []), allY = [8].concat(G ? G.cf.map(q => q[1] * 1.5) : [], b ? [b.CO * 1.6] : []);
+  const X1 = Math.min(40, Math.ceil(Math.max(...allX) / 5) * 5), Y1 = Math.min(20, Math.ceil(Math.max(...allY) / 2) * 2), X0 = -4;
+  const f = frame(c, W, H, { x0: X0, x1: X1, y0: 0, y1: Y1, xl: 'Right atrial pressure (mmHg)', yl: 'Cardiac output / venous return (L/min)', l: 46, b: 34, r: 14, t: 12 });
+  c.save(); c.beginPath(); c.rect(f.l, f.t, W - f.l - f.r, H - f.t - f.b); c.clip();
+  const vr = (g, col, lw, dash) => { const q0 = g.msfp / g.rvr; poly(c, [[X0, q0], [0, q0], [g.msfp, 0]], f, col, lw, dash); };
+  if (P) { poly(c, P.cf, f, css('--muted'), 1.5, [6, 4]); vr(P, css('--muted'), 1.5, [6, 4]); }
+  if (G) {
+    poly(c, G.cf, f, css('--lv'), 2.6); vr(G, '#4d7fb5', 2.6);
+    dot(c, f, G.msfp, 0, '#4d7fb5', 4.5); label(c, `MSFP ${fmt(G.msfp, 1)} mmHg`, f.x(G.msfp) + 6, f.y(0) - 10, '#4d7fb5');
+    const top = G.cf[G.cf.length - 1]; if (top) label(c, 'Cardiac function', Math.min(f.x(top[0]) - 4, W - f.r - 100), f.y(top[1]) - 12, css('--lv'));
+    const vy = Math.min(Y1 * 0.8, G.msfp / G.rvr * 0.6), vx = G.msfp - vy * G.rvr; label(c, 'Venous return', f.x(vx) + 8, f.y(vy), '#4d7fb5');
+  } else label(c, 'Computing curves…', W / 2, H / 2, css('--muted'), 'center');
+  if (b) { dot(c, f, b.RAP, b.CO, css('--ink'), 6.5); label(c, `Operating point: CVP ${fmt(b.RAP)}, CO ${fmt(b.CO, 1)}`, f.x(b.RAP) + 10, f.y(b.CO) + 13, css('--ink')); }
+  c.restore();
+}
+
+// ---------- challenges: reach clinical goals from a sick starting patient, then a debrief
+const CHAL = [
+  { n: 'Septic shock', p: { Ras: 0.4, V0sv: 3200, HR: 115, dV: 250, LV_Ees: 2.5 },
+    story: 'A 58-year-old with pneumonia: warm peripheries, bounding pulse, MAP in the 50s despite a litre of fluid already given.',
+    goals: [['MAP ≥ 65', b => b.MAP, '>=', 65, 0], ['Cardiac index ≥ 2.2', b => b.CO / 1.9, '>=', 2.2, 2], ['CVP ≤ 12', b => b.RAP, '<=', 12, 0]],
+    hint: 'Pressors and inotropes are in the Pressors and inotropes tab; volume is in Circulation.',
+    debrief: 'The problem is low SVR with blood pooled in dilated veins, not the pump. Two routes work. Fluid refills the venous reservoir and raises output and pressure, but every 500 mL pushes CVP and wedge pressure higher (a litre takes CVP past 12). Norepinephrine restores SVR and venous tone without adding volume. In practice: fluid while the patient is fluid responsive, then a vasopressor (norepinephrine first, vasopressin as an adjunct) rather than more fluid.' },
+  { n: 'Cardiogenic shock', p: { LV_Ees: 0.75, LV_V0: 25, dV: 400, HR: 100 },
+    story: 'Day 2 after an anterior STEMI: cool, clammy, crackles to the mid-zones, urine output falling.',
+    goals: [['Cardiac index ≥ 2.2', b => b.CO / 1.9, '>=', 2.2, 2], ['PCWP ≤ 18', b => b.LAP, '<=', 18, 0], ['MAP ≥ 65', b => b.MAP, '>=', 65, 0], ['MVO₂ ≤ 22 mL/min', b => b.MVO2, '<=', 22, 1]],
+    hint: 'Look at Pressors and inotropes, Vasodilators, Circulation (volume) and, in Advanced mode, Devices.',
+    debrief: 'A weak ventricle needs more flow at lower filling pressure without a big rise in myocardial oxygen demand. Inodilators (milrinone) or dobutamine lift the cardiac function curve; diuresis or venodilation brings PCWP down; mechanical unloading (Impella) does both while lowering MVO₂. Pressors alone raise MAP but cut cardiac output.' },
+  { n: 'Hypertensive acute heart failure', p: { LV_Ees: 0.9, LV_V0: 45, LV_k: 0.018, dV: 750, HR: 98, Ras: 1.7, Rap: 0.15 },
+    story: 'Sudden breathlessness, BP 190/110, frothy sputum, SpO₂ 86% on air. Known reduced EF.',
+    goals: [['PCWP ≤ 18', b => b.LAP, '<=', 18, 0], ['MAP 65–100', b => b.MAP, 'in', [65, 100], 0], ['Cardiac index ≥ 2.2', b => b.CO / 1.9, '>=', 2.2, 2]],
+    hint: 'Vasodilators and other drugs, and volume in Circulation.',
+    debrief: 'This is an afterload problem as much as a volume problem. High-dose nitrates or nitroprusside drop SVR and venous tone together: the loop moves left and widens, PCWP falls fast and output rises. Diuresis alone is slower and does nothing for the afterload mismatch.' },
+  { n: 'Cardiac tamponade', p: { eff: 300, HR: 115, resp: 1, V0sv: 2850 },
+    story: 'A week after cardiac surgery: hypotensive, tachycardic, distended neck veins, pulsus paradoxus.',
+    goals: [['MAP ≥ 65', b => b.MAP, '>=', 65, 0], ['Cardiac index ≥ 2.2', b => b.CO / 1.9, '>=', 2.2, 2]],
+    hint: 'Try the usual shock treatments first, then the drainage button below.', act: ['Pericardiocentesis (drain 150 mL)', s => setP('eff', Math.max(0, s.p.eff - 150))],
+    debrief: 'Every chamber is squeezed by the effusion, so filling, not contractility or SVR, limits output. Fluid helps a little by raising filling pressure above pericardial pressure; diuretics and vasodilators are dangerous. Draining the effusion is definitive: diastolic pressures separate and stroke volume returns.' },
+  { n: 'Aortic stenosis under anaesthesia', p: { av_f: 0.7, LV_Ees: 3.2, LV_k: 0.035, Ras: 0.45, HR: 88 },
+    story: 'Severe aortic stenosis; after induction the MAP has fallen to the 50s. The hypertrophied ventricle depends on coronary perfusion pressure.',
+    goals: [['MAP ≥ 65', b => b.MAP, '>=', 65, 0], ['Heart rate ≤ 90', b => b.HR, '<=', 90, 0], ['Diastolic BP ≥ 50 (coronary perfusion)', b => b.DBP, '>=', 50, 0]],
+    hint: 'Pressors and inotropes. Think about what each drug does to heart rate.',
+    debrief: 'A fixed outflow obstruction cannot compensate for vasodilation by raising output. A pure α-agonist (phenylephrine) restores diastolic pressure and coronary perfusion without tachycardia. Inotropes and β-agonists speed the heart, shorten diastole and raise demand in a ventricle already at risk of ischaemia.' },
+  { n: 'Haemorrhage', p: { dV: -900, HR: 120, V0sv: 2800 },
+    story: 'Trauma patient: tachycardic, cool, narrow pulse pressure, flat neck veins.',
+    goals: [['MAP ≥ 65', b => b.MAP, '>=', 65, 0], ['Cardiac index ≥ 2.2', b => b.CO / 1.9, '>=', 2.2, 2], ['CVP ≥ 3', b => b.RAP, '>=', 3, 0]],
+    hint: 'Volume is in the Circulation tab.',
+    debrief: 'The pump and vessels are fine; there is not enough stressed volume to fill the heart. Volume (blood) restores MSFP, venous return and stroke volume. Pressors can raise MAP briefly by squeezing veins and arterioles but leave the tank empty.' },
+];
+const goalOK = (g, v) => g[2] === '>=' ? v >= g[3] : g[2] === '<=' ? v <= g[3] : v >= g[3][0] && v <= g[3][1];
+function chalHTML() {
+  const C = S.chal;
+  if (!C) return `<div class="chal"><p class="help">Each challenge loads a sick patient and a set of clinical goals. Treat with any control; hold every goal for 10 simulated seconds to finish, then read the debrief.</p>${CHAL.map((ch, i) => `<button type="button" class="chalpick" data-chal="${i}"><b>${esc(ch.n)}</b><span>${esc(ch.story)}</span><small>Goals: ${ch.goals.map(g => esc(g[0])).join(' · ')}</small></button>`).join('')}</div>`;
+  const ch = CHAL[C.i];
+  return `<div class="chal on"><h3 class="bh">${esc(ch.n)}</h3><p>${esc(ch.story)}</p><ul class="cgoals" id="chalgoals">${ch.goals.map(g => `<li>${esc(g[0])}</li>`).join('')}</ul><p class="cstat" id="chalstat"></p>
+  ${ch.act ? `<p><button type="button" class="tg" id="chalact">${esc(ch.act[0])}</button></p>` : ''}<p class="help">${esc(ch.hint)}</p>
+  <div class="tgs"><button type="button" class="tg" id="chalgive">Show the debrief</button><button type="button" class="tg" data-chal="${C.i}">Restart</button><button type="button" class="tg" id="chalback">All challenges</button></div><div id="chaldeb"></div></div>`;
+}
+function startChal(i) {
+  const ch = CHAL[i]; recordUndo();
+  S.presetName = 'Challenge: ' + ch.n; S.base = Object.assign({}, DEFAULTS, ch.p); S.strat = null; renderStrat();
+  sim = new Sim(Object.assign({}, ch.p)); sim.run(12);
+  S.chal = { i, p0: Object.assign({}, sim.p), okSince: null, done: false };
+  S.guy = S.guyPrev = null; S.profTrail = [];
+  const lw = $('#labwhy'); if (lw) lw.hidden = true;
+  renderLabTab(); updateChanges(); updateRO();
+}
+function chalTick() {
+  const C = S.chal; if (!C || !sim) return;
+  const ch = CHAL[C.i], b = AB(), ul = $('#chalgoals'), st = $('#chalstat'); if (!b) return;
+  const res = ch.goals.map(g => { const v = g[1](b); return [g, v, goalOK(g, v)]; }), all = res.every(r => r[2]);
+  if (ul) { const h = res.map(([g, v, ok]) => `<li class="${ok ? 'ok' : 'no'}">${ok ? '✓' : '✗'} ${esc(g[0])} <span>now ${fmt(v, g[4])}</span></li>`).join(''); if (ul.innerHTML !== h) ul.innerHTML = h; }
+  if (C.done) return;
+  if (all) { if (C.okSince == null) C.okSince = sim.t; } else C.okSince = null;
+  const held = C.okSince == null ? 0 : sim.t - C.okSince;
+  if (st) st.textContent = all ? `All goals met: hold for ${fmt(Math.max(0, 10 - held), 0)} more seconds.` : 'Not there yet.';
+  if (held >= 10) chalFinish(true);
+}
+function chalFinish(won) {
+  const C = S.chal; if (!C || C.done) return; C.done = true;
+  const ch = CHAL[C.i], p1 = Object.assign({}, sim.p), b = AB();
+  const changed = Object.keys(CTL).filter(k => Math.abs((p1[k] ?? 0) - (C.p0[k] ?? 0)) > 1e-9).map(k => CTL[k][0]);
+  const st = $('#chalstat'); if (st) st.textContent = won ? 'Solved.' : 'Debrief shown.';
+  const box = $('#chaldeb'); if (!box) return;
+  box.innerHTML = `<div class="cdeb">${won ? `<p><b>Solved</b> using ${changed.length} setting${changed.length === 1 ? '' : 's'}${changed.length ? ': ' + esc(changed.join(', ')) : ''}. Myocardial O₂ use ${fmt(b ? b.MVO2 : NaN, 1)} mL/min (lower is kinder to the heart).</p>` : ''}<p><b>Debrief.</b> ${esc(ch.debrief)}</p><div class="why" id="chalwhy"><p class="muted small">Working out what your changes did…</p></div></div>`;
+  const wb = $('#chalwhy');
+  setTimeout(() => { if (!wb || !wb.isConnected) return; if (!changed.length && !won) { wb.innerHTML = ''; return; } try { const A = ssMeasure(C.p0), B = ssMeasure(p1); wb.innerHTML = whyHTML(C.p0, p1, A, B); } catch (err) { console.error(err); wb.innerHTML = ''; } }, 30);
+}
+
+// ---------- drugs whose responses were checked against real patients
+const VALID = {
+  ne: 'Checked against 58 norepinephrine starts in VitalDB surgical patients: the MAP and heart-rate responses match.',
+  phenyl: 'Recalibrated against 115 phenylephrine starts in VitalDB: the MAP dose-response matches across 0.16–0.54 µg/kg/min.',
+  dopa: 'Recalibrated against 19 dopamine starts in VitalDB: MAP and heart rate match; the cardiac output response is not yet confirmed.'
+};
+// explanation for a treatment applied from Treat and compare
+function whyLab(p0, name) {
+  const box = $('#labwhy'); if (!box) return;
+  box.hidden = false; box.innerHTML = `<p class="muted small">Working out what ${esc(name)} did…</p>`;
+  const p1 = Object.assign({}, sim.p);
+  setTimeout(() => { if (!box.isConnected) return; try { const A = ssMeasure(p0), B = ssMeasure(p1); box.innerHTML = `<p class="wh"><b>${esc(name)}</b></p>` + whyHTML(p0, p1, A, B); } catch (err) { console.error(err); box.hidden = true; } }, 30);
+}
 
 // ---------- main loop
 function frameLoop(ts) {
@@ -3794,6 +4322,8 @@ function frameLoop(ts) {
   if (!sec && HOME_SIM && document.getElementById('cm')) { cmFrame(dt); if (ts - roT > 300) { roT = ts; cmUpdate(); } }
   const labCirc = sec && sec.kind === 'lab' && S.labView && S.labView.view === 'circ' && sim;
   if (labCirc) { cmDraw(sim, dt); if (ts - (S.cmT || 0) > 300) { S.cmT = ts; cmUpdate(sim, true); } }
+  if (sec && sec.kind === 'lab' && S.labView && S.labView.view === 'prof' && sim) { try { profDraw(); } catch (err) { console.error(err); } }
+  if (sec && sec.kind === 'lab' && S.labView && S.labView.view === 'guy' && sim) { try { guyDraw(); } catch (err) { console.error(err); } }
   if (sec) {
     const live = sec.kind !== 'gas';
     if (live || S.dirty) { sec.panels.forEach((p, i) => { const cv = document.getElementById('cv' + i); if (cv) { try { PANEL[p.type](p, cv); } catch (err) { console.error(err); } } }); S.dirty = false; }
